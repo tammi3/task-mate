@@ -22,6 +22,8 @@ import {
 import {
   getAuth,
   createUserWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
   signInWithEmailAndPassword,
   signOut,
   deleteUser,
@@ -69,6 +71,8 @@ export {
   collection,
   Timestamp,
   EmailAuthProvider,
+  GoogleAuthProvider,
+  signInWithPopup,
   getAggregateFromServer,
   sum,
   arrayUnion,

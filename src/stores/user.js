@@ -1,6 +1,8 @@
 import {
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
+    GoogleAuthProvider,
+    signInWithPopup,
     auth,
     setDoc,
     doc,
@@ -19,13 +21,16 @@ import {
       firstName: "",
       lastName: "",
     }),
+    getters:{},
     actions: {
       registerUser() {
+        console.log(this.email, this.loading, this.password );
         const email = this.email;
         const password = this.password;
         createUserWithEmailAndPassword(auth, email, password)
           .then((cred) => {
             const user = auth.currentUser;
+            console.log(user);
   
             setDoc(doc(db, "users", user.uid), {
               email: this.email,
@@ -38,7 +43,7 @@ import {
               userId: user.uid,
               creationTime: user.metadata.creationTime,
             }).then(() => {
-              // setDoc(doc(db, "carts", user.uid), {
+              // setDoc(doc(db, "tasks", user.uid), {
               //   status: "active",
               //   created_at: Timestamp.fromDate(new Date()),
               //   updated_at: Timestamp.fromDate(new Date()),

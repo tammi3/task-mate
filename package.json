@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "firebase": "^10.12.5",
     "pinia": "^2.1.7",
     "sweetalert2": "^11.12.4",
     "vue": "^3.4.29",
