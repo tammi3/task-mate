@@ -556,12 +556,36 @@ video {
   --tw-contain-style:  ;
 }
 
-.mb-4{
-  margin-bottom: 1rem;
+.fixed{
+  position: fixed;
 }
 
-.mb-6{
-  margin-bottom: 1.5rem;
+.relative{
+  position: relative;
+}
+
+.inset-0{
+  inset: 0px;
+}
+
+.bottom-\[1rem\]{
+  bottom: 1rem;
+}
+
+.right-auto{
+  right: auto;
+}
+
+.top-\[1rem\]{
+  top: 1rem;
+}
+
+.z-20{
+  z-index: 20;
+}
+
+.mb-4{
+  margin-bottom: 1rem;
 }
 
 .mb-8{
@@ -608,10 +632,6 @@ video {
   display: none;
 }
 
-.h-4{
-  height: 1rem;
-}
-
 .h-5{
   height: 1.25rem;
 }
@@ -624,20 +644,12 @@ video {
   min-height: 100vh;
 }
 
-.w-1\/4{
-  width: 25%;
-}
-
-.w-2\/4{
-  width: 50%;
-}
-
-.w-4{
-  width: 1rem;
-}
-
 .w-5{
   width: 1.25rem;
+}
+
+.w-\[9rem\]{
+  width: 9rem;
 }
 
 .w-full{
@@ -666,8 +678,8 @@ video {
   margin-bottom: calc(0.75rem * var(--tw-space-y-reverse));
 }
 
-.rounded{
-  border-radius: 0.25rem;
+.overflow-y-auto{
+  overflow-y: auto;
 }
 
 .rounded-lg{
@@ -738,6 +750,18 @@ video {
   padding-bottom: 0.5rem;
 }
 
+.pb-10{
+  padding-bottom: 2.5rem;
+}
+
+.pl-8{
+  padding-left: 2rem;
+}
+
+.pr-6{
+  padding-right: 1.5rem;
+}
+
 .text-center{
   text-align: center;
 }
@@ -806,24 +830,19 @@ video {
   color: rgb(31 41 55 / var(--tw-text-opacity));
 }
 
-.text-gray-900{
-  --tw-text-opacity: 1;
-  color: rgb(17 24 39 / var(--tw-text-opacity));
-}
-
 .text-purple-600{
   --tw-text-opacity: 1;
   color: rgb(147 51 234 / var(--tw-text-opacity));
 }
 
-.text-white{
-  --tw-text-opacity: 1;
-  color: rgb(255 255 255 / var(--tw-text-opacity));
-}
-
 .text-red-500{
   --tw-text-opacity: 1;
   color: rgb(239 68 68 / var(--tw-text-opacity));
+}
+
+.text-white{
+  --tw-text-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity));
 }
 
 .placeholder-gray-400::-moz-placeholder{
@@ -852,6 +871,11 @@ video {
   --tw-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --tw-shadow-colored: 0 1px 2px 0 var(--tw-shadow-color);
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
+.shadow-gray-300{
+  --tw-shadow-color: #d1d5db;
+  --tw-shadow: var(--tw-shadow-colored);
 }
 
 .transition{

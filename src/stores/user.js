@@ -11,10 +11,11 @@ import {
   import Swal from "sweetalert2";
   import { defineStore } from "pinia";
   
-  export const userStore = defineStore("user", {
+  export const useUserStore = defineStore("user", {
     // arrow function recommended for full type inference
     state: () => ({
       loading: false,
+      loggedIn: false,
       error: "",
       email: "",
       password: "",
@@ -27,11 +28,12 @@ import {
         console.log(this.email, this.loading, this.password );
         const email = this.email;
         const password = this.password;
+       
         createUserWithEmailAndPassword(auth, email, password)
           .then((cred) => {
             const user = auth.currentUser;
             console.log(user);
-  
+            this.loggedIn= true;
             setDoc(doc(db, "users", user.uid), {
               email: this.email,
               password: this.password,
@@ -43,12 +45,12 @@ import {
               userId: user.uid,
               creationTime: user.metadata.creationTime,
             }).then(() => {
-              // setDoc(doc(db, "tasks", user.uid), {
-              //   status: "active",
-              //   created_at: Timestamp.fromDate(new Date()),
-              //   updated_at: Timestamp.fromDate(new Date()),
-              //   items: [],
-              // });
+              setDoc(doc(db, "tasks", user.uid), {
+              
+                created_at: Timestamp.fromDate(new Date()),
+                updated_at: Timestamp.fromDate(new Date()),
+                tasks: [],
+              });
             });
             const Toast = Swal.mixin({
               toast: true,
@@ -65,8 +67,8 @@ import {
               icon: "success",
               title: "Signed in successfully",
             });
-            const previousRoute = this.$router.options.history.state.back;
-            this.$router.push({ path: previousRoute });
+            // const previousRoute = this.$router.options.history.state.back;
+            // this.$router.push({ path: previousRoute });
           })
           .catch((err) => {
             if ((err.message = "Firebase: Error (auth/email-already-in-use).")) {
@@ -100,8 +102,9 @@ import {
               icon: "success",
               title: "Welcome back!",
             });
-            const previousRoute = this.$router.options.history.state.back;
-            this.$router.push({ path: previousRoute });
+            this.loggedIn= true;
+            // const previousRoute = this.$router.options.history.state.back;
+            // this.$router.push({ path: previousRoute });
           })
           .catch((err) => {
             if (err.message == "Firebase: Error (auth/invalid-email).") {

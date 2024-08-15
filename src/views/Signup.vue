@@ -1,10 +1,10 @@
 <script setup>
-import { userStore } from '../stores/user.js'
+import { useUserStore } from '../stores/user.js'
 import { storeToRefs } from 'pinia'
-const useUserStore = userStore()
-const { firstName, lastName, email, password, loading, error } = storeToRefs( useUserStore)
+const userStore = useUserStore()
+const { firstName, lastName, email, password, loading, error } = storeToRefs( userStore)
 function handleSubmit() {
-  useUserStore.registerUser()
+  userStore.registerUser()
 }
 
 

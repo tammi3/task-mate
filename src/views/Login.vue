@@ -1,10 +1,11 @@
 <script setup>
-import { userStore } from "../stores/user.js";
+import { useUserStore } from "../stores/user.js";
 import { storeToRefs } from "pinia";
-const useUserStore = userStore();
-const { email, password, loading, error } = storeToRefs(useUserStore);
+const userStore = useUserStore();
+const { email, password, loading, error } = storeToRefs(userStore);
+
 function handleSubmit() {
-  useUserStore.loginUser();
+  userStore.loginUser();
 }
 </script>
 <template>
@@ -28,6 +29,7 @@ function handleSubmit() {
         <input
           type="email"
           id="email"
+          v-model="email"
           placeholder="johndoe@example.com"
           @keydown="error = ''"
           required
@@ -42,6 +44,7 @@ function handleSubmit() {
         <input
           type="password"
           id="password"
+          v-model="password"
           placeholder="Enter 6 characters or more"
           @keydown="error = ''"
           required
