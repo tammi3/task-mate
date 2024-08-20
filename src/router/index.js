@@ -11,28 +11,34 @@ const router = createRouter({
       meta: { requiresAuth: false },
       children: [
         {
-          path: "/Signup",
+          path: "Signup",
           name: "Signup",
-          // route level code-splitting
-          // this generates a separate chunk (About.[hash].js) for this route
-          // which is lazy-loaded when the route is visited.
           component: () => import("../views/Signup.vue"),
         },
         {
-          path: "/Login",
+          path: "Login",
           name: "Login",
-          // route level code-splitting
-          // this generates a separate chunk (About.[hash].js) for this route
-          // which is lazy-loaded when the route is visited.
           component: () => import("../views/Login.vue"),
         },
       ],
     },
     {
-      path: "/User",
-      name: "User",
-      component: () => import("../views/User.vue"),
+      path: "/Dashboard",
+      name: "Dashboard",
+      component: () => import("../views/Dashboard.vue"),
       meta: { requiresAuth: true },
+      children: [
+        {
+          path: "Main",
+          name: "Main",
+          component: () => import("../views/Main.vue"),
+        },
+        {
+          path: "Notes",
+          name: "Notes",
+          component: () => import("../views/Notes.vue"),
+        },
+      ],
     },
   ],
 });
@@ -43,7 +49,7 @@ router.beforeEach(async (to, from) => {
 
   if (to.meta.requiresAuth && !loggedIn) return { name: "Login" };
   if ((to.name.startsWith("Login") || to.name.startsWith("Signup")) && loggedIn)
-    return { path:"/User"
+    return { path:"/Dashboard"
    };
   if (to.meta.requiresAuth && loggedIn) return true;
   if (!to.meta.requiresAuth && !loggedIn) return true;
