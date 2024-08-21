@@ -1,13 +1,12 @@
 <script setup>
-import { useUserStore } from '../stores/user.js'
-import { storeToRefs } from 'pinia'
-const userStore = useUserStore()
-const { firstName, lastName, email, password, loading, error } = storeToRefs( userStore)
+import { useUserStore } from "../stores/user.js";
+import { storeToRefs } from "pinia";
+const userStore = useUserStore();
+const { firstName, lastName, email, password, loading, error } =
+  storeToRefs(userStore);
 function handleSubmit() {
-  userStore.registerUser()
+  userStore.registerUser();
 }
-
-
 </script>
 <template>
   <div class="w-full lg:w-1/2">
@@ -18,71 +17,34 @@ function handleSubmit() {
     </p>
 
     <form @submit.prevent="handleSubmit()">
-      <div v-if="error!=''" class="mb-4">
-       <p class="block text-sm font-medium text-red-500">{{ error }}</p>
+      <div v-if="error != ''" class="mb-4">
+        <p class="block text-sm font-medium text-red-500">{{ error }}</p>
       </div>
       <div class="mb-4">
-        <label for="first_name" class="block text-sm font-medium text-gray-700"
-          >First Name</label
-        >
-        <input
-          type="first_name"
-          id="first_name"
-          v-model="firstName"
-          @keydown="error=''"
-          required
-          placeholder="John"
-          class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
-        />
+        <label for="first_name" class="block text-sm font-medium text-gray-700">First Name</label>
+        <input type="first_name" id="first_name" v-model="firstName" @keydown="error = ''" required placeholder="John"
+          class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm" />
       </div>
       <div class="mb-4">
-        <label for="last_name" class="block text-sm font-medium text-gray-700"
-          >Last Name</label
-        >
-        <input
-          type="last_name"
-          id="last_name"
-          placeholder="Doe"
-            @keydown="error=''"
-          v-model="lastName"
-          required
-          class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
-        />
+        <label for="last_name" class="block text-sm font-medium text-gray-700">Last Name</label>
+        <input type="last_name" id="last_name" placeholder="Doe" @keydown="error = ''" v-model="lastName" required
+          class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm" />
       </div>
       <div class="mb-4">
-        <label for="email" class="block text-sm font-medium text-gray-700"
-          >Email Address</label
-        >
-        <input
-          type="email"
-          id="email"
-          v-model="email"
-            @keydown="error=''"
-          required
-          placeholder="johndoe@example.com"
-          class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
-        />
+        <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
+        <input type="email" id="email" v-model="email" @keydown="error = ''" required placeholder="johndoe@example.com"
+          class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm" />
       </div>
 
       <div class="mb-4">
-        <label for="password" class="block text-sm font-medium text-gray-700"
-          >Password</label
-        >
-        <input
-          type="password"
-          id="password"
-          v-model="password"
-            @keydown="error=''"
-          required
+        <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+        <input type="password" id="password" v-model="password" @keydown="error = ''" required
           placeholder="Enter 6 characters or more"
-          class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
-        />
+          class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm" />
       </div>
 
-      <button
-        type="submit"
-        class="w-full bg-purple-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition duration-300"
-      >
+      <button type="submit"
+        class="w-full bg-purple-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition duration-300">
         Login
       </button>
     </form>
@@ -95,13 +57,8 @@ function handleSubmit() {
 
     <div class="flex mt-6">
       <button
-        class="w-full bg-white text-gray-700 border border-gray-300 py-2 px-4 rounded-lg shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 transition duration-300"
-      >
-        <img
-          src="https://img.icons8.com/color/48/000000/google-logo.png"
-          alt="Google"
-          class="w-5 h-5 inline mr-2"
-        />
+        class="w-full bg-white text-gray-700 border border-gray-300 py-2 px-4 rounded-lg shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 transition duration-300">
+        <img src="https://img.icons8.com/color/48/000000/google-logo.png" alt="Google" class="w-5 h-5 inline mr-2" />
         Google
       </button>
     </div>

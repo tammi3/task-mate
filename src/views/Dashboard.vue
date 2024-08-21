@@ -1,4 +1,5 @@
 <script setup>
+
 import {
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
@@ -27,18 +28,24 @@ console.log(new Date(), new Date().getDate(),
                         class="fa-solid fa-note-sticky"></i>
                     <p> Notes</p>
                 </router-link>
-                <router-link to="/Dashboard/Notes" class="w-full text-xl font-semibold flex space-x-2 items-center"><i
+                <router-link to="/Dashboard/Tasks" class="w-full text-xl font-semibold flex space-x-2 items-center"><i
                         class="fa-solid fa-list-check"></i>
                     <p>Tasks</p>
                 </router-link>
                 <div class="w-full absolute bottom-10 left-10 flex flex-col space-y-2">
-                    <button class="w-full text-xl font-semibold flex  space-x-2 items-center "> <i class="fa-solid fa-gear"></i><p>Settings</p></button>
-                    <button class="w-full text-xl font-semibold flex  space-x-2 items-center "> <i class="fa-solid fa-right-from-bracket"></i><p>Logout</p></button>
+                    <button class="w-full text-xl font-semibold flex  space-x-2 items-center "> <i
+                            class="fa-solid fa-gear"></i>
+                        <p>Settings</p>
+                    </button>
+                    <button class="w-full text-xl font-semibold flex  space-x-2 items-center "> <i
+                            class="fa-solid fa-right-from-bracket"></i>
+                        <p>Logout</p>
+                    </button>
                 </div>
-         
+
             </div>
             <router-view></router-view>
         </div>
-        <!-- <div class="fixed z-20 inset-0 top-[1rem] left-[2rem] right-auto w-[9rem] bottom-[1rem] pb-10 pl-8 pr-6 overflow-y-auto rounded-lg bg-white shadow-lg shadow-gray-300">dd</div> -->
+
     </div>
 </template>

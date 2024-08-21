@@ -16,6 +16,7 @@ import {
   arrayUnion,
   arrayRemove,
   getAggregateFromServer,
+    orderBy,
   sum,
   runTransaction
 } from 'firebase/firestore'
@@ -67,6 +68,7 @@ export {
   query,
   where,
   deleteUser,
+    orderBy,
   deleteDoc,
   collection,
   Timestamp,
