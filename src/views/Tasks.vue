@@ -1,40 +1,132 @@
 <script setup>
 import NewTask from "@/components/NewTask.vue";
-import { useTasksStore } from '@/stores/task';
-import { storeToRefs } from "pinia"
-import { onMounted } from 'vue';
+import { useTasksStore } from "@/stores/task";
+import { storeToRefs } from "pinia";
+import { onMounted, watch } from "vue";
 const taskStore = useTasksStore();
-const { tasks } = storeToRefs(taskStore);
-onMounted(() => { taskStore.getTasks(); })
+const {
+    tasks,
+    sortedAndFilteredTasks,
+    priorities,
+    currentFilter,
+    filters,
+    filteredTasks,
+    sortBy,
+    filterByPriority,
+} = storeToRefs(taskStore);
+watch(currentFilter, (newcurrentFilter, oldcurrentFilter) => {
+    if (oldcurrentFilter !== newcurrentFilter) {
+        taskStore.resetSortandFilter(newcurrentFilter);
+    }
+});
+
+onMounted(() => {
+    taskStore.getPriorities();
+
+    taskStore.sortAndFilterTasks(currentFilter);
+});
 </script>
 <template>
     <div class="container bg-white rounded-lg p-6 flex flex-col space-y-10">
-        <div class="bg-gray-100 w-full flex space-x-2 justify-between p-2 rounded-lg text-md font-semibold">
-            <button class="flex justify-center items-center p-2 space-x-2">
-                <i class="fa-solid fa-clock"></i><span>Recent</span>
-            </button>
-            <button class="flex justify-center items-center p-2 space-x-2">
-                <i class="fa-solid fa-square-check"></i><span>Completed</span>
-            </button>
-            <button class="flex justify-center items-center p-2 space-x-2">
-                <i class="fa-solid fa-box-archive"></i><span>Archived</span>
-            </button>
-            <button class="flex justify-center items-center p-2 space-x-2">
-                <i class="fa-solid fa-trash-can"></i><span>Deleted</span>
-            </button>
-            <button class="flex justify-center items-center p-2 space-x-2">
-                <i class="fa-solid fa-box-archive"></i><span>Add Task</span>
-            </button>
+        <div class="flex flex-col space-y-2 w-full">
+            <div class="bg-gray-100 w-full flex space-x-2 justify-around p-2 rounded-lg text-md font-semibold">
+                <button v-for="filter in filters" :key="filter" @click="taskStore.sortAndFilterTasks(filter.name)"
+                    :class="[
+                        'flex',
+                        'justify-center',
+                        'items-center',
+                        'p-2',
+                        'space-x-2',
+                        currentFilter === filter.name
+                            ? ['border', 'border-2', 'border-gray-700', 'rounded-md']
+                            : '',
+                    ]">
+                    <i :class="filter.icon"></i><span>{{ filter.name }}</span>
+                </button>
+                <button class="flex justify-center items-center p-2 space-x-2">
+                    <i class="fa-solid fa-box-archive"></i><span>Add Task</span>
+                </button>
+            </div>
+            <div class="max-w-sm flex space-x-4">
+                <div class="flex-col flex space-y-2 w-2/4">
+                    <label for="sort">Sort by</label>
+                    <select id="sort" v-model="sortBy" @change="taskStore.sortAndFilterTasks(currentFilter)"
+                        class="block appearance-none rounded-md bg-white border border-gray-300 hover:border-gray-500 p-2 shadow leading-tight focus:outline-none focus:shadow-outline">
+                        <option selected>Newest</option>
+                        <option>Oldest</option>
+                        <option>A-Z</option>
+                        <option>Z-A</option>
+                    </select>
+                </div>
+                <div class="flex-col flex space-y-2 w-2/4">
+                    <label for="priority">Priority</label>
+                    <select id="priority" v-model="filterByPriority"
+                        @change="taskStore.sortAndFilterTasks(currentFilter)"
+                        class="block appearance-none rounded-md bg-white border border-gray-300 hover:border-gray-500 p-2 shadow leading-tight focus:outline-none focus:shadow-outline">
+                        <option selected>Any</option>
+                        <option v-for="priority in priorities" :key="priority">
+                            {{ priority }}
+                        </option>
+                    </select>
+                </div>
+            </div>
         </div>
-        <div class="w-full flex flex-col h-[40rem] space-y-3 overflow-y-auto relative">
-            <div v-for="task in tasks" :key="task" class="bg-gray-200 px-2 py-4 flex items-center rounded-lg">
-                <label class="checkbox">
+
+        <div class="w-full flex flex-col h-[30rem] space-y-3 overflow-y-auto relative">
+            <div v-for="task in sortedAndFilteredTasks" :key="task"
+                class="w-full bg-gray-200 px-2 py-4 flex items-center rounded-lg relative">
+                <label @click="taskStore.taskCompleted(task)" v-if="!task.isCompleted" class="checkbox">
                     <input type="checkbox" />
                     <span class="checkmark"></span>
                 </label>
-                <div>{{ task.name }}</div>
-            </div>
+                <div class="w-2/4 pl-2">{{ task.name }}</div>
 
+                <div class="flex space-x-2 pl-10 items-center">
+                    <i class="fa-solid fa-folder"></i>
+                    <p>{{ task.label }}</p>
+                </div>
+                <div class="flex space-x-2 pl-10 items-center">
+                    <p>
+                        {{
+                            new Date(
+                                `${task.start_date}T${task.start_time}`
+                            ).toLocaleDateString("en-US", {
+                                year: "numeric",
+                                month: "short",
+                                day: "numeric",
+                            })
+                        }}
+                    </p>
+                    <p>
+                        {{
+                            new Date(
+                                `${task.start_date}T${task.start_time}`
+                            ).toLocaleTimeString("en-US")
+                        }}
+                    </p>
+                </div>
+                <div @click="taskStore.toggleOptions(task.id)" class="absolute cursor-pointer right-4">
+                    <i class="p-1 fa-solid fa-ellipsis-vertical"></i>
+                </div>
+                <div :id="task.id"
+                    class="bg-white z-10 max-w-sm p-4 rounded-lg absolute right-4 top-10 hidden flex-col space-y-2 text-sm shadow-gray-400 shadow-lg">
+                    <div @click="taskStore.editTask(task)"
+                        class="flex items-center w-full space-x-2 p-2 justify-start cursor-pointer">
+                        <i class="fa-regular fa-pen-to-square text-md"></i>
+                        <p>Edit</p>
+                    </div>
+                    <div v-if="!task.isCompleted && !task.isArchived" @click="taskStore.archiveTask(task.id)"
+                        class="flex items-center w-full space-x-2 p-2 justify-start cursor-pointer">
+                        <i class="fa-solid fa-box-archive text-md"></i>
+                        <p>Archive</p>
+                    </div>
+                    <div @click="taskStore.deleteTask(task.id)"
+                        class="flex items-center w-full space-x-2 p-2 justify-start cursor-pointer">
+                        <i class="fa-regular fa-trash-can text-md"></i>
+                        <p>Delete</p>
+                    </div>
+                </div>
+            </div>
         </div>
         <NewTask />
     </div>
