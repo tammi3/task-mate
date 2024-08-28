@@ -10,8 +10,11 @@ import {
     doc,
     db,
 } from "@/db/firebase.js";
-console.log(new Date(), new Date().getDate(),
-    new Date().getMonth(),)
+import { onMounted } from "vue";
+onMounted(() => {
+    console.log(new Date(), new Date().getDate(),
+        new Date().getMonth(),);
+})
 </script>
 <template>
     <div class="relative bg-gradient-to-r from-purple-500 to-pink-500 min-h-screen ">
@@ -32,7 +35,7 @@ console.log(new Date(), new Date().getDate(),
                         class="fa-solid fa-list-check"></i>
                     <p>Tasks</p>
                 </router-link>
-                <div class="w-full absolute bottom-10 left-10 flex flex-col space-y-2">
+                <div class="w-full absolute bottom-10 pl-10 flex flex-col space-y-2">
                     <button class="w-full text-xl font-semibold flex  space-x-2 items-center "> <i
                             class="fa-solid fa-gear"></i>
                         <p>Settings</p>

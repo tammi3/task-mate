@@ -43,6 +43,7 @@ const router = createRouter({
           name: "Tasks",
           component: () => import("../views/Tasks.vue"),
         },
+          
       ],
     },
   ],

@@ -1,8 +1,8 @@
 <script setup>
-import NewTask from "@/components/NewTask.vue";
+import ManageTask from "@/components/ManageTask.vue";
 import { useTasksStore } from "@/stores/task";
 import { storeToRefs } from "pinia";
-import { onMounted, watch } from "vue";
+import { onMounted, watch, ref } from "vue";
 const taskStore = useTasksStore();
 const {
     tasks,
@@ -14,16 +14,22 @@ const {
     sortBy,
     filterByPriority,
 } = storeToRefs(taskStore);
+const showModal = ref(false);
 watch(currentFilter, (newcurrentFilter, oldcurrentFilter) => {
     if (oldcurrentFilter !== newcurrentFilter) {
-        taskStore.resetSortandFilter(newcurrentFilter);
+        taskStore.resetSortAndFilter(newcurrentFilter);
     }
 });
-
-onMounted(() => {
+function toggleTaskModal() {
+    if (showModal.value === true) {
+        taskStore.resetManageTask();
+    }
+    showModal.value = !showModal.value;
+}
+onMounted(async () => {
     taskStore.getPriorities();
 
-    taskStore.sortAndFilterTasks(currentFilter);
+    await taskStore.sortAndFilterTasks(currentFilter.value);
 });
 </script>
 <template>
@@ -43,7 +49,7 @@ onMounted(() => {
                     ]">
                     <i :class="filter.icon"></i><span>{{ filter.name }}</span>
                 </button>
-                <button class="flex justify-center items-center p-2 space-x-2">
+                <button @click="toggleTaskModal" class="flex justify-center items-center p-2 space-x-2">
                     <i class="fa-solid fa-box-archive"></i><span>Add Task</span>
                 </button>
             </div>
@@ -81,10 +87,7 @@ onMounted(() => {
                 </label>
                 <div class="w-2/4 pl-2">{{ task.name }}</div>
 
-                <div class="flex space-x-2 pl-10 items-center">
-                    <i class="fa-solid fa-folder"></i>
-                    <p>{{ task.label }}</p>
-                </div>
+
                 <div class="flex space-x-2 pl-10 items-center">
                     <p>
                         {{
@@ -105,7 +108,7 @@ onMounted(() => {
                         }}
                     </p>
                 </div>
-                <div @click="taskStore.toggleOptions(task.id)" class="absolute cursor-pointer right-4">
+                <div @click="taskStore.toggleOptions(task.id)" class="absolute z-10 cursor-pointer right-4">
                     <i class="p-1 fa-solid fa-ellipsis-vertical"></i>
                 </div>
                 <div :id="task.id"
@@ -128,7 +131,8 @@ onMounted(() => {
                 </div>
             </div>
         </div>
-        <NewTask />
+        <ManageTask v-if="showModal" @close="toggleTaskModal" />
+        <div id="toggleOptionsBg" class="w-full inset-0 absolute hidden backdrop-blur-0 "></div>
     </div>
 </template>
 <style>

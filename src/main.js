@@ -15,7 +15,8 @@ app.use(router)
 let mounted = false;
 
 auth.onAuthStateChanged((user) => {
-
+ 
+  
   localStorage.setItem('loggedIn', user ? true : false);
   
 

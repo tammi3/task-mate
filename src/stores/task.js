@@ -15,7 +15,9 @@ import {
 } from "@/db/firebase.js";
 import Swal from "sweetalert2";
 import { defineStore } from "pinia";
-export const useTasksStore = defineStore("tasks", {
+
+
+export const useTasksStore = defineStore("tasksStore", {
   // arrow function recommended for full type inference
   state: () => ({
     user: auth.currentUser,
@@ -39,7 +41,7 @@ export const useTasksStore = defineStore("tasks", {
     startTime: "",
     startDate: "",
     taskPrioprity: "",
-    taskLabel: "",
+    taskLabel: { name: "", color: "" },
   }),
   getters: {},
   actions: {
@@ -53,7 +55,26 @@ export const useTasksStore = defineStore("tasks", {
         this.priorities = doc.data().priorities;
       });
     },
+    setLabelColor() {
+      const getLabelColor = this.labels.filter(
+        (label) => label.name === this.taskLabel.name
+      );
+      this.taskLabel.color = getLabelColor[0].color;
+    },
+    resetManageTask() {
+      this.taskName = "";
+      this.taskDescription = "";
+      this.dueTime = "";
+      this.dueDate = "";
+      this.startTime = "";
+      this.startDate = "";
+      this.taskPrioprity = "";
+      this.taskLabel = { name: "", color: "" };
+      this.resetSortAndFilter(this.currentFilter);
+      this.sortAndFilterTasks(this.currentFilter);
+    },
     async addTask() {
+      this.setLabelColor();
       const docRef = await addDoc(collection(db, "tasks"), {
         name: this.taskName,
         description: this.taskDescription,
@@ -68,43 +89,45 @@ export const useTasksStore = defineStore("tasks", {
         isArchived: false,
         isDeadline: false,
       }).then(() => {
-        this.taskName = "";
-        this.taskDescription = "";
-        this.dueTime = "";
-        this.dueDate = "";
-        this.startTime = "";
-        this.startDate = "";
-        this.taskPrioprity = "";
-        this.taskLabel = "";
-        this.sortandFilterTasks(this.currentFilter);
+        this.resetManageTask();
       });
     },
     async getTasks(filter) {
       this.filteredTasks = [];
       this.sortedAndFilteredTasks = [];
       this.currentFilter = filter;
+      
       const q = query(
         collection(db, "tasks"),
         where("user_id", "==", this.user.uid)
       );
 
+     
+
       const querySnapshot = await getDocs(q);
       this.tasks = [];
       querySnapshot.forEach((doc) => {
+         
         this.tasks.push({
           id: doc.id,
           ...doc.data(),
         });
       });
+
+      
     },
-    resetSortandFilter(filter) {
+    resetSortAndFilter(filter) {
       this.currentFilter = filter;
       this.sortBy = "Newest";
       this.filterByPriority = "Any";
     },
-    sortAndFilterTasks(filter) {
-      this.getTasks(filter);
+    async sortAndFilterTasks(filter) {
+      
+      
+      await this.getTasks(filter);
       // filter and sort tasks in recent
+
+     
       if (this.currentFilter == "Recent") {
         if (this.sortBy == "Newest" && this.filterByPriority == "Any") {
           const filterByCompleted = this.tasks.filter(
@@ -607,17 +630,25 @@ export const useTasksStore = defineStore("tasks", {
     },
     toggleOptions(id) {
       const moreOptions = document.getElementById(id);
-      console.log(id);
+      const toggleOptionsBg = document.getElementById("toggleOptionsBg");
+      toggleOptionsBg.addEventListener("click", function () {
+        toggleOptionsBg.classList.add("hidden");
+        moreOptions.classList.remove("flex");
+        moreOptions.classList.add("hidden");
+      });
       if (moreOptions.classList.contains("hidden")) {
+        toggleOptionsBg.classList.remove("hidden");
         moreOptions.classList.add("flex");
         moreOptions.classList.remove("hidden");
       } else {
+        toggleOptionsBg.classList.add("hidden");
         moreOptions.classList.remove("flex");
         moreOptions.classList.add("hidden");
       }
     },
     editTask(task) {},
     async deleteTask(id) {
+      this.toggleOptions(id);
       await deleteDoc(doc(db, "tasks", id));
     },
     archiveTask(id) {

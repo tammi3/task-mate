@@ -15,6 +15,8 @@ const {
   taskPrioprity,
   taskLabel,
 } = storeToRefs(taskStore);
+defineEmits(['close'])
+
 function setMinDate() {
   const today = new Date();
   const year = today.getFullYear();
@@ -26,10 +28,11 @@ function setMinDate() {
   document.getElementById('due-date').setAttribute('min', minDate);
 }
 
+
 onMounted(() => { taskStore.getLabels(); taskStore.getPriorities(); setMinDate(); })
 </script>
 <template>
-  <div class="w-full hidden inset-0 absolute z-50 items-center justify-center  backdrop-blur-lg  font-Ubuntu">
+  <div class="w-full flex inset-0 absolute z-50 items-center justify-center  backdrop-blur-lg  ">
     <div class="bg-white p-8 rounded-lg shadow-lg max-w-lg w-full">
       <h2 class="text-2xl font-semibold text-gray-800 mb-6">Create New Task</h2>
 
@@ -103,7 +106,7 @@ onMounted(() => { taskStore.getLabels(); taskStore.getPriorities(); setMinDate()
           <label class="block text-gray-700 text-sm font-bold mb-2" for="labels">
             Labels
           </label>
-          <select id="labels" v-model="taskLabel" required
+          <select id="labels" v-model="taskLabel.name" required
             class="block appearance-none w-full bg-white border border-gray-300 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline">
             <option disabled>Enter label</option>
             <option v-for="label in labels" :key="label">{{ label.name }}</option>
@@ -118,6 +121,11 @@ onMounted(() => { taskStore.getLabels(); taskStore.getPriorities(); setMinDate()
             class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
             Add Task
           </button>
+          <button @click="$emit('close')"
+            class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+            Cancel
+          </button>
+
         </div>
       </form>
     </div>
