@@ -19,8 +19,9 @@ onMounted(() => {
 <template>
     <div class="relative bg-gradient-to-r from-purple-500 to-pink-500 min-h-screen ">
         <h1 class="font-Ubuntu text-2xl font-bold tracking-widest  px-10 pt-4">TASK MATE</h1>
-        <div class="flex space-x-2 p-10 ">
-            <div class="bg-white h-[50rem] flex flex-col items-center space-y-4 w-96 p-10 rounded-lg relative">
+        <div class="flex flex-col lg:flex-row space-y-10 lg:space-y-0 lg:space-x-2 p-10 ">
+            <div
+                class="bg-white lg:h-[50rem] flex flex-row lg:flex-col items-center space-y-4 w-full lg:w-96 p-10 rounded-lg relative">
 
                 <img class="w-10" src="../assets/imgs/default-profile-picture.png" alt="">
                 <router-link to="/Dashboard/Main" class="w-full text-xl font-semibold flex space-x-2 items-center"><i
@@ -35,7 +36,7 @@ onMounted(() => {
                         class="fa-solid fa-list-check"></i>
                     <p>Tasks</p>
                 </router-link>
-                <div class="w-full absolute bottom-10 pl-10 flex flex-col space-y-2">
+                <div class="w-full lg:absolute bottom-10 pl-10 flex flex-row space-x-2 lg:flex-col space-y-2">
                     <button class="w-full text-xl font-semibold flex  space-x-2 items-center "> <i
                             class="fa-solid fa-gear"></i>
                         <p>Settings</p>

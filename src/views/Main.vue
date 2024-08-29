@@ -29,7 +29,7 @@ function renderCalendar() {
 
     // Current month's dates
     for (let day = 1; day <= daysInMonth; day++) {
-        calendarDays.innerHTML += `<div class="text-gray-800 bg-gray-200 px-4 py-2 flex items-center justify-center rounded-lg cursor-pointer hover:bg-purple-300 transition">${day}</div>`;
+        calendarDays.innerHTML += `<div  class="text-gray-800 bg-gray-200 px-4 py-2 flex items-center justify-center rounded-lg cursor-pointer hover:bg-purple-300 transition">${day}</div>`;
     }
 }
 function prevMonthCal() {
@@ -46,8 +46,9 @@ function chartJs() {
 }
 
 onMounted(async () => {
+    await taskStore.checkAndArchiveTasks();
 
-    await taskStore.sortAndFilterTasks(currentFilter.value);
+    await taskStore.sortAndFilterTasks("Recent");
     renderCalendar();
     chartJs();
 });

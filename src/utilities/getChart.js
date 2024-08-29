@@ -97,6 +97,7 @@ export function getChart() {
     labels: months,
     datasets: [
       {
+        label: "Completed Tasks",
         data: [
           jan.length,
           feb.length,
@@ -140,7 +141,7 @@ export function getChart() {
           "rgb(58, 200, 66)",
         ],
         borderWidth: 3,
-        color: "#36A2EB",
+        color: "#fff",
       },
     ],
   };
@@ -183,7 +184,7 @@ export function getChart() {
             color: "#fff", // Custom dark color
             font: {
               size: 24, // Larger font size
-              family: "Helvetica, Arial, sans-serif", // Font family
+              family: "Poppins, sans-serif", // Font family
               weight: "600", // Semi-bold font weight
             },
             padding: {
@@ -192,10 +193,13 @@ export function getChart() {
             },
           },
           labels: {
+            color: "#fff",
+
             // This more specific font property overrides the global property
             font: {
               size: 20,
-              family: "Poppins",
+              family: "Poppins, sans-serif",
+              weight: "600",
             },
           },
         },

@@ -7,7 +7,6 @@ const {
   labels,
   priorities,
   taskName,
-  taskDescription,
   dueTime,
   dueDate,
   startTime,
@@ -27,7 +26,11 @@ function setMinDate() {
   document.getElementById('start-date').setAttribute('min', minDate);
   document.getElementById('due-date').setAttribute('min', minDate);
 }
-
+function setMinDueDate() {
+  console.log(startDate.value);
+  dueDate.value = "";
+  document.getElementById('due-date').setAttribute('min', startDate.value);
+}
 
 onMounted(() => { taskStore.getLabels(); taskStore.getPriorities(); setMinDate(); })
 </script>
@@ -47,19 +50,19 @@ onMounted(() => { taskStore.getLabels(); taskStore.getPriorities(); setMinDate()
         </div>
 
         <!-- Task Description -->
-        <div class="mb-4">
+        <!-- <div class="mb-4">
           <label class="block text-gray-700 text-sm font-bold mb-2" for="task-desc">
             Description
           </label>
           <textarea id="task-desc" placeholder="Enter task description" v-model="taskDescription" required
             class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"></textarea>
-        </div>
+        </div> -->
         <!-- Start Date -->
         <div class="mb-4">
           <label class="block text-gray-700 text-sm font-bold mb-2" for="start-date">
             Start Date
           </label>
-          <input id="start-date" type="date" v-model="startDate" required
+          <input id="start-date" type="date" @change="setMinDueDate()" v-model="startDate" required
             class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
         </div>
 

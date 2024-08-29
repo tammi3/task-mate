@@ -16,7 +16,6 @@ import {
 import Swal from "sweetalert2";
 import { defineStore } from "pinia";
 
-
 export const useTasksStore = defineStore("tasksStore", {
   // arrow function recommended for full type inference
   state: () => ({
@@ -77,7 +76,6 @@ export const useTasksStore = defineStore("tasksStore", {
       this.setLabelColor();
       const docRef = await addDoc(collection(db, "tasks"), {
         name: this.taskName,
-        description: this.taskDescription,
         start_time: this.startTime,
         start_date: this.startDate,
         due_time: this.dueTime,
@@ -96,25 +94,20 @@ export const useTasksStore = defineStore("tasksStore", {
       this.filteredTasks = [];
       this.sortedAndFilteredTasks = [];
       this.currentFilter = filter;
-      
+
       const q = query(
         collection(db, "tasks"),
         where("user_id", "==", this.user.uid)
       );
 
-     
-
       const querySnapshot = await getDocs(q);
       this.tasks = [];
       querySnapshot.forEach((doc) => {
-         
         this.tasks.push({
           id: doc.id,
           ...doc.data(),
         });
       });
-
-      
     },
     resetSortAndFilter(filter) {
       this.currentFilter = filter;
@@ -122,12 +115,9 @@ export const useTasksStore = defineStore("tasksStore", {
       this.filterByPriority = "Any";
     },
     async sortAndFilterTasks(filter) {
-      
-      
       await this.getTasks(filter);
       // filter and sort tasks in recent
 
-     
       if (this.currentFilter == "Recent") {
         if (this.sortBy == "Newest" && this.filterByPriority == "Any") {
           const filterByCompleted = this.tasks.filter(
@@ -622,9 +612,16 @@ export const useTasksStore = defineStore("tasksStore", {
       }
     },
     taskCompleted(task) {
-      updateDoc(doc(db, "tasks", task.id), {
-        isCompleted: true,
-      });
+      if (task.isArchived) {
+        updateDoc(doc(db, "tasks", task.id), {
+          isCompleted: true,
+          isArchived: false,
+        });
+      } else {
+        updateDoc(doc(db, "tasks", task.id), {
+          isCompleted: true,
+        });
+      }
 
       this.sortAndFilterTasks(this.currentFilter);
     },
@@ -655,6 +652,33 @@ export const useTasksStore = defineStore("tasksStore", {
       updateDoc(doc(db, "tasks", id), {
         isArchived: true,
       });
+    },
+    async checkAndArchiveTasks() {
+      const now = new Date();
+
+      try {
+        const q = query(
+          collection(db, "tasks"),
+          where("user_id", "==", this.user.uid)
+        );
+
+        const querySnapshot = await getDocs(q);
+
+        querySnapshot.forEach((docTask) => {
+          const task = docTask.data();
+          const deadline = new Date(`${task.due_date}T${task.due_time}`);
+
+          // Check if the deadline has passed
+          if (deadline < now && task.isCompleted === false) {
+            // Update the isArchived field to true
+            updateDoc(doc(db, "tasks", docTask.id), {
+              isArchived: true,
+            });
+          }
+        });
+      } catch (error) {
+        // console.error("Error getting tasks: ", error);
+      }
     },
   },
 });

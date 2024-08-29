@@ -15,9 +15,17 @@ const {
     filterByPriority,
 } = storeToRefs(taskStore);
 const showModal = ref(false);
+const loading = ref(false);
 watch(currentFilter, (newcurrentFilter, oldcurrentFilter) => {
     if (oldcurrentFilter !== newcurrentFilter) {
         taskStore.resetSortAndFilter(newcurrentFilter);
+        setTimeout(() => {
+            if (sortedAndFilteredTasks.value.length > 0) {
+                loading.value = false;
+            } else {
+                loading.value = true;
+            }
+        }, 1000);
     }
 });
 function toggleTaskModal() {
@@ -26,6 +34,20 @@ function toggleTaskModal() {
     }
     showModal.value = !showModal.value;
 }
+function daysUntilDeadline(deadlineDate) {
+    const currentDate = new Date();
+    const deadline = new Date(deadlineDate);
+
+    // Calculate the difference in time (in milliseconds)
+    const differenceInTime = deadline - currentDate;
+
+    // Convert time difference from milliseconds to days
+    const differenceInDays = Math.ceil(differenceInTime / (1000 * 60 * 60 * 24));
+
+    return differenceInDays;
+}
+
+
 onMounted(async () => {
     taskStore.getPriorities();
 
@@ -42,6 +64,7 @@ onMounted(async () => {
                         'justify-center',
                         'items-center',
                         'p-2',
+                        'w-1/4',
                         'space-x-2',
                         currentFilter === filter.name
                             ? ['border', 'border-2', 'border-gray-700', 'rounded-md']
@@ -49,7 +72,7 @@ onMounted(async () => {
                     ]">
                     <i :class="filter.icon"></i><span>{{ filter.name }}</span>
                 </button>
-                <button @click="toggleTaskModal" class="flex justify-center items-center p-2 space-x-2">
+                <button @click="toggleTaskModal" class="flex justify-center items-center p-2 space-x-2 w-1/4">
                     <i class="fa-solid fa-box-archive"></i><span>Add Task</span>
                 </button>
             </div>
@@ -78,17 +101,17 @@ onMounted(async () => {
             </div>
         </div>
 
-        <div class="w-full flex flex-col h-[30rem] space-y-3 overflow-y-auto relative">
+        <div v-if="!loading" class="w-full flex flex-col h-[30rem] space-y-3 overflow-y-auto relative">
             <div v-for="task in sortedAndFilteredTasks" :key="task"
                 class="w-full bg-gray-200 px-2 py-4 flex items-center rounded-lg relative">
                 <label @click="taskStore.taskCompleted(task)" v-if="!task.isCompleted" class="checkbox">
                     <input type="checkbox" />
                     <span class="checkmark"></span>
                 </label>
-                <div class="w-2/4 pl-2">{{ task.name }}</div>
+                <div class="w-2/4 px-2 break-words">{{ task.name }}</div>
 
 
-                <div class="flex space-x-2 pl-10 items-center">
+                <div class="flex space-x-2 w-1/4 items-center">
                     <p>
                         {{
                             new Date(
@@ -108,11 +131,22 @@ onMounted(async () => {
                         }}
                     </p>
                 </div>
-                <div @click="taskStore.toggleOptions(task.id)" class="absolute z-10 cursor-pointer right-4">
+                <div v-if="!task.isCompleted && !task.isArchived" class="flex space-x-2 w-1/4 items-center">
+                    {{ daysUntilDeadline(`${task.due_date}T${task.due_time}`) }} day(s) till deadline.
+
+                </div>
+                <div v-if="!task.isCompleted && task.isArchived" class="flex space-x-2 w-1/4 items-center">
+                    Deadline was {{ `${daysUntilDeadline(`${task.due_date}T${task.due_time}`)}`.slice(1, 2) }} day(s)
+                    ago.
+
+                </div>
+
+                <div v-if="!task.isCompleted" @click="taskStore.toggleOptions(task.id)"
+                    class="absolute z-10 cursor-pointer right-4">
                     <i class="p-1 fa-solid fa-ellipsis-vertical"></i>
                 </div>
                 <div :id="task.id"
-                    class="bg-white z-10 max-w-sm p-4 rounded-lg absolute right-4 top-10 hidden flex-col space-y-2 text-sm shadow-gray-400 shadow-lg">
+                    class="bg-white z-20 max-w-sm p-4 rounded-lg absolute right-4 top-10 hidden flex-col space-y-2 text-sm shadow-gray-400 shadow-lg">
                     <div @click="taskStore.editTask(task)"
                         class="flex items-center w-full space-x-2 p-2 justify-start cursor-pointer">
                         <i class="fa-regular fa-pen-to-square text-md"></i>
@@ -130,6 +164,11 @@ onMounted(async () => {
                     </div>
                 </div>
             </div>
+        </div>
+        <div v-else
+            class="w-full h-[30rem] space-y-3 overflow-y-auto relative text-lg font-bold flex justify-center items-center">
+            No {{ currentFilter }}
+            Tasks
         </div>
         <ManageTask v-if="showModal" @close="toggleTaskModal" />
         <div id="toggleOptionsBg" class="w-full inset-0 absolute hidden backdrop-blur-0 "></div>
