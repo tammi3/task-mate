@@ -55,9 +55,10 @@ onMounted(async () => {
 });
 </script>
 <template>
-    <div class="container bg-white rounded-lg p-6 flex flex-col space-y-10">
+    <div class="w-full overflow-x-auto lg:container bg-white rounded-lg p-6 flex flex-col space-y-10">
         <div class="flex flex-col space-y-2 w-full">
-            <div class="bg-gray-100 w-full flex space-x-2 justify-around p-2 rounded-lg text-md font-semibold">
+            <div
+                class="bg-gray-100 lg:w-full w-[55rem] flex space-x-2 justify-around p-2 rounded-lg text-md font-semibold">
                 <button v-for="filter in filters" :key="filter" @click="taskStore.sortAndFilterTasks(filter.name)"
                     :class="[
                         'flex',
@@ -101,66 +102,76 @@ onMounted(async () => {
             </div>
         </div>
 
-        <div v-if="!loading" class="w-full flex flex-col h-[30rem] space-y-3 overflow-y-auto relative">
+        <div v-if="!loading" class="w-[55rem] lg:w-full flex flex-col h-[30rem] space-y-3 overflow-y-auto ">
             <div v-for="task in sortedAndFilteredTasks" :key="task"
                 class="w-full bg-gray-200 px-2 py-4 flex items-center rounded-lg relative">
-                <label @click="taskStore.taskCompleted(task)" v-if="!task.isCompleted" class="checkbox">
+                <label @click="taskStore.taskCompleted(task)" v-if="!task.isCompleted"
+                    class="checkbox flex items-start">
                     <input type="checkbox" />
-                    <span class="checkmark"></span>
+                    <span class="checkmark "></span>
                 </label>
-                <div class="w-2/4 px-2 break-words">{{ task.name }}</div>
+                <div class="flex space-x-4 w-full">
+                    <div class="w-[45%] lg:w-2/4 px-2 break-words">{{ task.name }}</div>
 
 
-                <div class="flex space-x-2 w-1/4 items-center">
-                    <p>
-                        {{
-                            new Date(
-                                `${task.start_date}T${task.start_time}`
-                            ).toLocaleDateString("en-US", {
-                                year: "numeric",
-                                month: "short",
-                                day: "numeric",
-                            })
-                        }}
-                    </p>
-                    <p>
-                        {{
-                            new Date(
-                                `${task.start_date}T${task.start_time}`
-                            ).toLocaleTimeString("en-US")
-                        }}
-                    </p>
-                </div>
-                <div v-if="!task.isCompleted && !task.isArchived" class="flex space-x-2 w-1/4 items-center">
-                    {{ daysUntilDeadline(`${task.due_date}T${task.due_time}`) }} day(s) till deadline.
-
-                </div>
-                <div v-if="!task.isCompleted && task.isArchived" class="flex space-x-2 w-1/4 items-center">
-                    Deadline was {{ `${daysUntilDeadline(`${task.due_date}T${task.due_time}`)}`.slice(1, 2) }} day(s)
-                    ago.
-
-                </div>
-
-                <div v-if="!task.isCompleted" @click="taskStore.toggleOptions(task.id)"
-                    class="absolute z-10 cursor-pointer right-4">
-                    <i class="p-1 fa-solid fa-ellipsis-vertical"></i>
-                </div>
-                <div :id="task.id"
-                    class="bg-white z-20 max-w-sm p-4 rounded-lg absolute right-4 top-10 hidden flex-col space-y-2 text-sm shadow-gray-400 shadow-lg">
-                    <div @click="taskStore.editTask(task)"
-                        class="flex items-center w-full space-x-2 p-2 justify-start cursor-pointer">
-                        <i class="fa-regular fa-pen-to-square text-md"></i>
-                        <p>Edit</p>
+                    <div class="flex space-x-2 w-1/4 items-center">
+                        <p>
+                            {{
+                                new Date(
+                                    `${task.start_date}T${task.start_time}`
+                                ).toLocaleDateString("en-US", {
+                                    year: "numeric",
+                                    month: "short",
+                                    day: "numeric",
+                                })
+                            }}
+                        </p>
+                        <p>
+                            {{
+                                new Date(
+                                    `${task.start_date}T${task.start_time}`
+                                ).toLocaleTimeString("en-US")
+                            }}
+                        </p>
                     </div>
-                    <div v-if="!task.isCompleted && !task.isArchived" @click="taskStore.archiveTask(task.id)"
-                        class="flex items-center w-full space-x-2 p-2 justify-start cursor-pointer">
-                        <i class="fa-solid fa-box-archive text-md"></i>
-                        <p>Archive</p>
+                    <div class=" w-1/4 relative">
+                        <div v-if="!task.isCompleted && !task.isArchived" class="flex space-x-2 w-3/4 items-center">
+                            {{ daysUntilDeadline(`${task.due_date}T${task.due_time}`) }} day(s) till deadline.
+
+                        </div>
+                        <div v-if="!task.isCompleted && task.isArchived" class="flex space-x-2 w-3/4 items-center">
+                            Deadline was {{ `${daysUntilDeadline(`${task.due_date}T${task.due_time}`)}`.slice(1, 2) }}
+                            day(s)
+                            ago.
+
+                        </div>
+                        <div class="w-1/4">
+                            <div v-if="!task.isCompleted" @click="taskStore.toggleOptions(task.id)"
+                                class="absolute z-10 cursor-pointer top-0 right-4">
+                                <i class="p-1 fa-solid fa-ellipsis-vertical"></i>
+                            </div>
+                        </div>
                     </div>
-                    <div @click="taskStore.deleteTask(task.id)"
-                        class="flex items-center w-full space-x-2 p-2 justify-start cursor-pointer">
-                        <i class="fa-regular fa-trash-can text-md"></i>
-                        <p>Delete</p>
+
+
+
+                    <div :id="task.id"
+                        class="bg-white z-20 max-w-sm p-4 rounded-lg absolute right-4 top-10 hidden flex-col space-y-2 text-sm shadow-gray-400 shadow-lg">
+                        <div @click="taskStore.editTask(task)"
+                            class="flex items-center w-full space-x-2 p-2 justify-start cursor-pointer">
+                            <i class="fa-regular fa-pen-to-square text-md"></i>
+                            <p>Edit</p>
+                        </div>
+                        <div v-if="!task.isCompleted && !task.isArchived" @click="taskStore.archiveTask(task.id)"
+                            class="flex items-center w-full space-x-2 p-2 justify-start cursor-pointer">
+                            <i class="fa-solid fa-box-archive text-md"></i>
+                            <p>Archive</p>
+                        </div>
+                        <div @click="taskStore.deleteTask(task.id)"
+                            class="flex items-center w-full space-x-2 p-2 justify-start cursor-pointer">
+                            <i class="fa-regular fa-trash-can text-md"></i>
+                            <p>Delete</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -171,7 +182,7 @@ onMounted(async () => {
             Tasks
         </div>
         <ManageTask v-if="showModal" @close="toggleTaskModal" />
-        <div id="toggleOptionsBg" class="w-full inset-0 absolute hidden backdrop-blur-0 "></div>
+        <div id="toggleOptionsBg" class="w-full inset-0 top-0 bottom-0 absolute hidden backdrop-blur-0 "></div>
     </div>
 </template>
 <style>

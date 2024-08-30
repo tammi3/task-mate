@@ -79,7 +79,13 @@ onMounted(async () => {
                     <router-link class="absolute bottom-2 z-10 right-2 p-2 underline" to="/Dashboard/Tasks">See
                         all</router-link>
                 </div>
-                <div class="bg-white rounded-lg w-[512px] h-[240px]"></div>
+                <div class="bg-white rounded-lg w-[512px] h-[240px] flex flex-col space-y-2 ">
+                    <div class="text-md border-b border-gray-500 p-4 font-semibold">
+                        Today's Activity(s)
+                    </div>
+                    <div class="flex-col p-2 h-full overflow-y-auto space-y-3">
+                    </div>
+                </div>
             </div>
             <div style="width: 900px"><canvas id="acquisitions"></canvas></div>
         </div>
