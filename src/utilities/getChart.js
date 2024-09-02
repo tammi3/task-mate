@@ -91,7 +91,6 @@ export function getChart() {
     const taskMonth = months[taskDate.getMonth()];
     return taskMonth === months[11];
   });
-  console.log(completedTasks, jan);
 
   const data = {
     labels: months,

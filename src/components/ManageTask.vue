@@ -9,6 +9,7 @@ const {
   taskName,
   dueTime,
   dueDate,
+  taskDescription,
   startTime,
   startDate,
   taskPrioprity,
@@ -50,13 +51,13 @@ onMounted(() => { taskStore.getLabels(); taskStore.getPriorities(); setMinDate()
         </div>
 
         <!-- Task Description -->
-        <!-- <div class="mb-4">
+        <div class="mb-4">
           <label class="block text-gray-700 text-sm font-bold mb-2" for="task-desc">
             Description
           </label>
           <textarea id="task-desc" placeholder="Enter task description" v-model="taskDescription" required
             class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"></textarea>
-        </div> -->
+        </div>
         <!-- Start Date -->
         <div class="mb-4">
           <label class="block text-gray-700 text-sm font-bold mb-2" for="start-date">

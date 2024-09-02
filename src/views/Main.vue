@@ -54,14 +54,15 @@ onMounted(async () => {
 });
 </script>
 <template>
-    <div class="flex w-full h-[50rem] container space-x-10 px-6 relative overflow-x-auto">
+    <div
+        class="flex flex-col lg:flex-row w-full lg:h-[50rem] lg:container space-y-10 lg:space-y-0 lg:space-x-10  lg:px-6 relative lg:overflow-x-auto">
         <div class="flex flex-col space-y-10 items-center">
-            <div class="flex space-x-4">
-                <div class="bg-white rounded-lg w-[512px] h-[240px] flex flex-col space-y-2 relative">
+            <div class="flex flex-col space-y-4 w-full lg:flex-row lg:space-x-4 lg:space-y-0">
+                <div class="bg-white rounded-lg w-full lg:w-[512px] h-[240px] flex flex-col space-y-2 relative">
                     <div class="text-md border-b border-gray-500 p-4 font-semibold">
                         Tasks
                     </div>
-                    <div class="flex-col p-2 h-full overflow-y-auto space-y-3">
+                    <div class="flex flex-col p-2 h-full overflow-y-auto space-y-3">
                         <div class="bg-gray-300 p-4 rounded-md flex space relative"
                             v-for="task in sortedAndFilteredTasks.slice(0, 3)" :key="task">
                             <div class="truncate w-3/4">{{ task.name }}</div>
@@ -79,7 +80,7 @@ onMounted(async () => {
                     <router-link class="absolute bottom-2 z-10 right-2 p-2 underline" to="/Dashboard/Tasks">See
                         all</router-link>
                 </div>
-                <div class="bg-white rounded-lg w-[512px] h-[240px] flex flex-col space-y-2 ">
+                <div class="bg-white rounded-lg w-full lg:w-[512px] h-[240px] flex flex-col space-y-2 ">
                     <div class="text-md border-b border-gray-500 p-4 font-semibold">
                         Today's Activity(s)
                     </div>
@@ -87,9 +88,14 @@ onMounted(async () => {
                     </div>
                 </div>
             </div>
-            <div style="width: 900px"><canvas id="acquisitions"></canvas></div>
+            <div class="w-full flex md:justify-center overflow-x-auto">
+                <div style="width: 900px"><canvas id="acquisitions"></canvas></div>
+            </div>
+
+
         </div>
-        <div class="bg-white shadow-lg rounded-lg p-10 pr-16 w-[512px] flex flex-col space-y-2 items-center mx-auto">
+        <div
+            class="bg-white shadow-lg rounded-lg px-4 py-8 md:p-10 lg:pr-16 w-full lg:w-[512px] flex flex-col space-y-2 items-center mx-auto">
             <!-- Calendar Header -->
             <div class="w-full flex space-x-2 justify-between items-center mb-4">
                 <button @click="prevMonthCal" id="prevMonth"
@@ -104,7 +110,7 @@ onMounted(async () => {
             </div>
 
             <!-- Calendar Days of the Week -->
-            <div class="w-full grid grid-cols-7 gap-10 text-center text-gray-600 font-semibold">
+            <div class="w-full grid grid-cols-7 gap-4 md:gap-10 text-center text-gray-600 font-semibold">
                 <div>Sun</div>
                 <div>Mon</div>
                 <div>Tue</div>
@@ -115,7 +121,7 @@ onMounted(async () => {
             </div>
 
             <!-- Calendar Dates -->
-            <div id="calendarDays" class="w-full grid grid-cols-7 gap-10 mt-4"></div>
+            <div id="calendarDays" class="w-full grid grid-cols-7 gap-4 md:gap-10 mt-4"></div>
         </div>
     </div>
 </template>

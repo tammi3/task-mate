@@ -47,7 +47,7 @@ onMounted(() => {
 });
 </script>
 <template>
-    <div class="relative bg-gradient-to-r from-purple-500 to-pink-500 min-h-screen">
+    <div class="relative bg-gradient-to-r from-purple-500 to-pink-500 min-h-screen overflow-y-auto">
         <div class="font-Ubuntu text-2xl font-bold tracking-widest px-10 py-4">
             TASK MATE
         </div>

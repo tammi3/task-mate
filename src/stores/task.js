@@ -76,6 +76,7 @@ export const useTasksStore = defineStore("tasksStore", {
       this.setLabelColor();
       const docRef = await addDoc(collection(db, "tasks"), {
         name: this.taskName,
+        description: this.taskDescription,
         start_time: this.startTime,
         start_date: this.startDate,
         due_time: this.dueTime,
@@ -628,6 +629,7 @@ export const useTasksStore = defineStore("tasksStore", {
     toggleOptions(id) {
       const moreOptions = document.getElementById(id);
       const toggleOptionsBg = document.getElementById("toggleOptionsBg");
+      const ellipsis = document.getElementById(`${id}-ellipsis`);
       toggleOptionsBg.addEventListener("click", function () {
         toggleOptionsBg.classList.add("hidden");
         moreOptions.classList.remove("flex");
@@ -636,10 +638,12 @@ export const useTasksStore = defineStore("tasksStore", {
       if (moreOptions.classList.contains("hidden")) {
         toggleOptionsBg.classList.remove("hidden");
         moreOptions.classList.add("flex");
+        ellipsis.classList.add("z-10");
         moreOptions.classList.remove("hidden");
       } else {
         toggleOptionsBg.classList.add("hidden");
         moreOptions.classList.remove("flex");
+        ellipsis.classList.remove("z-10");
         moreOptions.classList.add("hidden");
       }
     },

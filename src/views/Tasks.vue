@@ -48,6 +48,7 @@ function daysUntilDeadline(deadlineDate) {
 }
 
 
+
 onMounted(async () => {
     taskStore.getPriorities();
 
@@ -55,12 +56,12 @@ onMounted(async () => {
 });
 </script>
 <template>
-    <div class="w-full overflow-x-auto lg:container bg-white rounded-lg p-6 flex flex-col space-y-10">
+    <div class="w-full lg:container bg-white rounded-lg p-4 lg:p-6 flex flex-col space-y-10">
         <div class="flex flex-col space-y-2 w-full">
-            <div
-                class="bg-gray-100 lg:w-full w-[55rem] flex space-x-2 justify-around p-2 rounded-lg text-md font-semibold">
-                <button v-for="filter in filters" :key="filter" @click="taskStore.sortAndFilterTasks(filter.name)"
-                    :class="[
+            <div class="bg-gray-100 w-full flex space-x-2 justify-around p-2 rounded-lg text-md font-semibold">
+                <!-- task filter navigator for large screens -->
+                <button class="hidden lg:block" v-for="filter in filters" :key="filter"
+                    @click="taskStore.sortAndFilterTasks(filter.name)" :class="[
                         'flex',
                         'justify-center',
                         'items-center',
@@ -68,12 +69,27 @@ onMounted(async () => {
                         'w-1/4',
                         'space-x-2',
                         currentFilter === filter.name
-                            ? ['border', 'border-2', 'border-gray-700', 'rounded-md']
+                            ? ['border-2', 'border-gray-700', 'rounded-md', 'flex',]
                             : '',
                     ]">
                     <i :class="filter.icon"></i><span>{{ filter.name }}</span>
+
                 </button>
-                <button @click="toggleTaskModal" class="flex justify-center items-center p-2 space-x-2 w-1/4">
+                <!-- task filter navigator for small screens -->
+                <div class="w-2/4 lg:hidden relative">
+                    <label
+                        class="absolute inset-0 w-full flex justify-center items-center space-x-2 border-2 border-gray-700 rounded-md"
+                        for="filterSelect">
+                        <span>{{
+                            currentFilter }}</span><i class="fa-solid text-lg fa-caret-down"></i></label>
+                    <select v-model="currentFilter" @change="taskStore.sortAndFilterTasks(currentFilter)"
+                        class="w-full opacity-0" name="filter" id="filterSelect">
+                        <option v-for="filter in filters" :key="filter" :value="filter.name"> {{
+                            filter.name }}</option>
+                    </select>
+                </div>
+                <!-- toggle add task modal -->
+                <button @click="toggleTaskModal" class="flex justify-center items-center p-2 space-x-2 w-2/4 lg:w-1/4">
                     <i class="fa-solid fa-box-archive"></i><span>Add Task</span>
                 </button>
             </div>
@@ -102,7 +118,7 @@ onMounted(async () => {
             </div>
         </div>
 
-        <div v-if="!loading" class="w-[55rem] lg:w-full flex flex-col h-[30rem] space-y-3 overflow-y-auto ">
+        <div v-if="!loading" class="w-full flex flex-col h-[30rem] space-y-3 overflow-y-auto ">
             <div v-for="task in sortedAndFilteredTasks" :key="task"
                 class="w-full bg-gray-200 px-2 py-4 flex items-center rounded-lg relative">
                 <label @click="taskStore.taskCompleted(task)" v-if="!task.isCompleted"
@@ -110,11 +126,12 @@ onMounted(async () => {
                     <input type="checkbox" />
                     <span class="checkmark "></span>
                 </label>
-                <div class="flex space-x-4 w-full">
-                    <div class="w-[45%] lg:w-2/4 px-2 break-words">{{ task.name }}</div>
+                <div class="flex space-x-2 lg:space-x-4 w-full">
+                    <div class="w-3/4 lg:w-2/4 px-2 truncate">{{ task.name }}</div>
 
 
-                    <div class="flex space-x-2 w-1/4 items-center">
+                    <div
+                        :class="['hidden', 'lg:flex', 'space-x-2', 'items-center', currentFilter === 'Completed' ? ['w-2/4', 'justify-end', 'pr-10'] : 'w-1/4']">
                         <p>
                             {{
                                 new Date(
@@ -134,20 +151,23 @@ onMounted(async () => {
                             }}
                         </p>
                     </div>
-                    <div class=" w-1/4 relative">
-                        <div v-if="!task.isCompleted && !task.isArchived" class="flex space-x-2 w-3/4 items-center">
+                    <div :class="['w-1/4', 'lg:relative', currentFilter === 'Completed' ? ['hidden'] : '']">
+                        <div v-if="!task.isCompleted && !task.isArchived"
+                            class="hidden lg:flex  space-x-2 w-3/4 items-center">
                             {{ daysUntilDeadline(`${task.due_date}T${task.due_time}`) }} day(s) till deadline.
 
                         </div>
-                        <div v-if="!task.isCompleted && task.isArchived" class="flex space-x-2 w-3/4 items-center">
+                        <div v-if="!task.isCompleted && task.isArchived"
+                            class="hidden lg:flex  space-x-2 w-3/4 items-center">
                             Deadline was {{ `${daysUntilDeadline(`${task.due_date}T${task.due_time}`)}`.slice(1, 2) }}
                             day(s)
                             ago.
 
                         </div>
-                        <div class="w-1/4">
-                            <div v-if="!task.isCompleted" @click="taskStore.toggleOptions(task.id)"
-                                class="absolute z-10 cursor-pointer top-0 right-4">
+                        <div class="w-full lg:w-1/4">
+                            <div :id="`${task.id}-ellipsis`" v-if="!task.isCompleted"
+                                @click="taskStore.toggleOptions(task.id)"
+                                class="w-full flex justify-end absolute cursor-pointer top-3 lg:top-0 right-4">
                                 <i class="p-1 fa-solid fa-ellipsis-vertical"></i>
                             </div>
                         </div>
