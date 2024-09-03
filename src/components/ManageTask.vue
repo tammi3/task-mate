@@ -37,7 +37,7 @@ onMounted(() => { taskStore.getLabels(); taskStore.getPriorities(); setMinDate()
 </script>
 <template>
   <div class="w-full flex inset-0 absolute z-50 items-center justify-center  backdrop-blur-lg  ">
-    <div class="bg-white p-8 rounded-lg shadow-lg max-w-lg w-full">
+    <div class="bg-white p-4 mx-4 md:p-8 rounded-lg shadow-lg max-w-lg w-full">
       <h2 class="text-2xl font-semibold text-gray-800 mb-6">Create New Task</h2>
 
       <form @submit.prevent="taskStore.addTask()">

@@ -684,5 +684,19 @@ export const useTasksStore = defineStore("tasksStore", {
         // console.error("Error getting tasks: ", error);
       }
     },
+    daysUntilDeadline(deadlineDate) {
+      const currentDate = new Date();
+      const deadline = new Date(deadlineDate);
+
+      // Calculate the difference in time (in milliseconds)
+      const differenceInTime = deadline - currentDate;
+
+      // Convert time difference from milliseconds to days
+      const differenceInDays = Math.ceil(
+        differenceInTime / (1000 * 60 * 60 * 24)
+      );
+
+      return differenceInDays;
+    },
   },
 });

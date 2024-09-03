@@ -3,6 +3,7 @@ import {
   signInWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithPopup,
+  onSnapshot,
   auth,
   setDoc,
   signOut,
@@ -24,6 +25,7 @@ export const useUserStore = defineStore("user", {
     firstName: "",
     lastName: "",
     router: useRouter(),
+    userInfo: {},
   }),
   getters: {},
   actions: {
@@ -131,11 +133,17 @@ export const useUserStore = defineStore("user", {
       signOut(auth)
         .then(() => {
           this.router.push({ path: "/Login" });
-          console.log("hgdgdg");
         })
         .catch((err) => {
           // console.log(err.message);
         });
+    },
+    getUserInfo() {
+      const user = auth.currentUser;
+      const unsub = onSnapshot(doc(db, "users", user.uid), (doc) => {
+        this.userInfo = doc.data();
+      });
+      console.log(this.userInfo);
     },
   },
 });

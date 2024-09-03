@@ -47,8 +47,9 @@ onMounted(() => {
 });
 </script>
 <template>
-    <div class="relative bg-gradient-to-r from-purple-500 to-pink-500 min-h-screen overflow-y-auto">
-        <div class="font-Ubuntu text-2xl font-bold tracking-widest px-10 py-4">
+    <div class="relative bg-gradient-to-r from-purple-500 to-pink-500 min-h-screen overflow-y-auto pb-10
+        lg:pb-0">
+        <div class="text-white font-Ubuntu text-2xl font-bold tracking-widest px-10 py-10 lg:py-4">
             TASK MATE
         </div>
         <div class="flex flex-col lg:flex-row space-y-10 lg:space-y-0 lg:space-x-2 py-2 px-4 lg:p-10 ">
@@ -71,20 +72,20 @@ onMounted(() => {
                             class="fa-solid fa-chalkboard-user"></i>
                         <p>Dashboard</p>
                     </router-link>
-                    <router-link to="/Dashboard/Notes" class="w-full flex space-x-2 items-center"><i
+                    <!-- <router-link to="/Dashboard/Notes" class="w-full flex space-x-2 items-center"><i
                             class="fa-solid fa-note-sticky"></i>
                         <p>Notes</p>
-                    </router-link>
+                    </router-link> -->
                     <router-link to="/Dashboard/Tasks" class="w-full flex space-x-2 items-center"><i
                             class="fa-solid fa-list-check"></i>
                         <p>Tasks</p>
                     </router-link>
                     <div
                         class="w-full bg-inherit lg:absolute lg:bottom-10 right-0 lg:px-10 flex flex-col space-y-5 lg:space-y-2">
-                        <button class="w-full flex space-x-2 items-center">
+                        <router-link to="/Dashboard/Settings" class="w-full flex space-x-2 items-center">
                             <i class="fa-solid fa-gear"></i>
                             <p>Settings</p>
-                        </button>
+                        </router-link>
                         <button @click="userStore.logOut()" class="w-full flex space-x-2 items-center">
                             <i class="fa-solid fa-right-from-bracket"></i>
                             <p>Logout</p>

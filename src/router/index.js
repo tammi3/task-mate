@@ -34,16 +34,20 @@ const router = createRouter({
           component: () => import("../views/Main.vue"),
         },
         {
-          path: "Notes",
+          path: "Settings",
+          name: "Settings",
+          component: () => import("../views/Settings.vue"),
+        },
+        {
+          path: "Task/:id",
           name: "Notes",
-          component: () => import("../views/Notes.vue"),
+          component: () => import("../views/ViewTask.vue"),
         },
         {
           path: "Tasks",
           name: "Tasks",
           component: () => import("../views/Tasks.vue"),
         },
-          
       ],
     },
   ],
@@ -55,8 +59,7 @@ router.beforeEach(async (to, from) => {
 
   if (to.meta.requiresAuth && !loggedIn) return { name: "Login" };
   if ((to.name.startsWith("Login") || to.name.startsWith("Signup")) && loggedIn)
-    return { path:"/Dashboard"
-   };
+    return { path: "/Dashboard" };
   if (to.meta.requiresAuth && loggedIn) return true;
   if (!to.meta.requiresAuth && !loggedIn) return true;
 });

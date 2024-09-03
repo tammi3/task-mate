@@ -34,18 +34,6 @@ function toggleTaskModal() {
     }
     showModal.value = !showModal.value;
 }
-function daysUntilDeadline(deadlineDate) {
-    const currentDate = new Date();
-    const deadline = new Date(deadlineDate);
-
-    // Calculate the difference in time (in milliseconds)
-    const differenceInTime = deadline - currentDate;
-
-    // Convert time difference from milliseconds to days
-    const differenceInDays = Math.ceil(differenceInTime / (1000 * 60 * 60 * 24));
-
-    return differenceInDays;
-}
 
 
 
@@ -117,9 +105,13 @@ onMounted(async () => {
                 </div>
             </div>
         </div>
-
-        <div v-if="!loading" class="w-full flex flex-col h-[30rem] space-y-3 overflow-y-auto ">
-            <div v-for="task in sortedAndFilteredTasks" :key="task"
+        <div v-if="sortedAndFilteredTasks.length === 0"
+            class="w-full h-[30rem] space-y-3 overflow-y-auto relative text-lg font-bold flex justify-center items-center">
+            No {{ currentFilter }}
+            Tasks
+        </div>
+        <div v-else class="w-full flex flex-col h-[30rem] space-y-3 overflow-y-auto ">
+            <div v-for="(task, index) in sortedAndFilteredTasks" :key="task"
                 class="w-full bg-gray-200 px-2 py-4 flex items-center rounded-lg relative">
                 <label @click="taskStore.taskCompleted(task)" v-if="!task.isCompleted"
                     class="checkbox flex items-start">
@@ -127,7 +119,9 @@ onMounted(async () => {
                     <span class="checkmark "></span>
                 </label>
                 <div class="flex space-x-2 lg:space-x-4 w-full">
-                    <div class="w-3/4 lg:w-2/4 px-2 truncate">{{ task.name }}</div>
+                    <router-link :to="`/Dashboard/Task/${index}`" class="w-3/4 lg:w-2/4 px-2 truncate hover:text-lg ">{{
+                        task.name
+                        }}</router-link>
 
 
                     <div
@@ -154,12 +148,13 @@ onMounted(async () => {
                     <div :class="['w-1/4', 'lg:relative', currentFilter === 'Completed' ? ['hidden'] : '']">
                         <div v-if="!task.isCompleted && !task.isArchived"
                             class="hidden lg:flex  space-x-2 w-3/4 items-center">
-                            {{ daysUntilDeadline(`${task.due_date}T${task.due_time}`) }} day(s) till deadline.
+                            {{ taskStore.daysUntilDeadline(`${task.due_date}T${task.due_time}`) }} day(s) till deadline.
 
                         </div>
                         <div v-if="!task.isCompleted && task.isArchived"
                             class="hidden lg:flex  space-x-2 w-3/4 items-center">
-                            Deadline was {{ `${daysUntilDeadline(`${task.due_date}T${task.due_time}`)}`.slice(1, 2) }}
+                            Deadline was {{
+                                `${taskStore.daysUntilDeadline(`${task.due_date}T${task.due_time}`)}`.slice(1, 2) }}
                             day(s)
                             ago.
 
@@ -196,11 +191,7 @@ onMounted(async () => {
                 </div>
             </div>
         </div>
-        <div v-else
-            class="w-full h-[30rem] space-y-3 overflow-y-auto relative text-lg font-bold flex justify-center items-center">
-            No {{ currentFilter }}
-            Tasks
-        </div>
+
         <ManageTask v-if="showModal" @close="toggleTaskModal" />
         <div id="toggleOptionsBg" class="w-full inset-0 top-0 bottom-0 absolute hidden backdrop-blur-0 "></div>
     </div>
