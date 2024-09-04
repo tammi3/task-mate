@@ -31,7 +31,7 @@ function returnToTasks() {
             <div class="text-xl md:text-3xl font-bold uppercase  w-full ">{{ task.name }}</div>
             <div class="flex flex-col space-y-2">
                 <div class="font-bold text-xl uppercase">Description</div>
-                <div class="text-lg pl-4">{{ task.description }}</div>
+                <div class=" h-[20rem] lg:h-[8rem] overflow-y-auto text-lg pl-4">{{ task.description }}</div>
             </div>
             <div class="flex flex-col space-y-2">
                 <div class="font-bold text-xl uppercase">Start</div>

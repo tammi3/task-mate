@@ -4,5 +4,3 @@
     <h1 class="font-Ubuntu text-2xl font-bold tracking-widest">TASK MATE</h1>
   </header>
 </template>
-
-<style scoped></style>

@@ -11,10 +11,14 @@ import {
 } from "@/db/firebase.js";
 import { useUserStore } from "../stores/user.js";
 import { storeToRefs } from "pinia";
-const userStore = useUserStore();
+
 import { onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import Swal from "sweetalert2";
+import { useTasksStore } from "@/stores/task";
+const taskStore = useTasksStore();
+const userStore = useUserStore();
+const { userInfo, profileImg } = storeToRefs(userStore);
 const isMenuVisible = ref(false);
 
 const route = useRoute();
@@ -41,13 +45,15 @@ function toggleMenu() {
         menu.classList.remove("absolute");
     }
 }
-onMounted(() => {
-    // console.log(new Date(), new Date().getDate(),
-    //     new Date().getMonth(),);
+onMounted(async () => {
+    userStore.getUserInfo();
+    await taskStore.checkAndArchiveTasks();
+
+    await taskStore.sortAndFilterTasks("Recent");
 });
 </script>
 <template>
-    <div class="relative bg-gradient-to-r from-purple-500 to-pink-500 min-h-screen overflow-y-auto pb-10
+    <div class="relative bg-gradient-to-r from-purple-500 to-pink-500 min-h-screen overflow-y-auto pb-10 
         lg:pb-0">
         <div class="text-white font-Ubuntu text-2xl font-bold tracking-widest px-10 py-10 lg:py-4">
             TASK MATE
@@ -72,10 +78,7 @@ onMounted(() => {
                             class="fa-solid fa-chalkboard-user"></i>
                         <p>Dashboard</p>
                     </router-link>
-                    <!-- <router-link to="/Dashboard/Notes" class="w-full flex space-x-2 items-center"><i
-                            class="fa-solid fa-note-sticky"></i>
-                        <p>Notes</p>
-                    </router-link> -->
+
                     <router-link to="/Dashboard/Tasks" class="w-full flex space-x-2 items-center"><i
                             class="fa-solid fa-list-check"></i>
                         <p>Tasks</p>

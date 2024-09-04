@@ -3,7 +3,13 @@ import {
   signInWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithPopup,
+  storage,
+  deleteObject,
+  ref,
+  getDownloadURL,
+  uploadBytes,
   onSnapshot,
+  updateDoc,
   auth,
   setDoc,
   signOut,
@@ -20,11 +26,15 @@ export const useUserStore = defineStore("user", {
     loading: false,
     loggedIn: false,
     error: "",
+    loadingUpdateImg: false,
+    loadingDeleteImg: false,
     email: "",
     password: "",
     firstName: "",
     lastName: "",
+    profileImg: "",
     router: useRouter(),
+    user: auth.currentUser,
     userInfo: {},
   }),
   getters: {},
@@ -36,10 +46,9 @@ export const useUserStore = defineStore("user", {
 
       createUserWithEmailAndPassword(auth, email, password)
         .then((cred) => {
-          const user = auth.currentUser;
           console.log(user);
           this.loggedIn = true;
-          setDoc(doc(db, "users", user.uid), {
+          setDoc(doc(db, "users", this.user.uid), {
             email: this.email,
             password: this.password,
             name: {
@@ -47,7 +56,7 @@ export const useUserStore = defineStore("user", {
               lastname: this.lastName,
             },
             updatedProfileImage: false,
-            userId: user.uid,
+            userId: this.user.uid,
             creationTime: user.metadata.creationTime,
           }).then(() => {
             this.email = "";
@@ -55,7 +64,7 @@ export const useUserStore = defineStore("user", {
 
             this.firstName = "";
             this.lastName = "";
-            setDoc(doc(db, "tasks", user.uid), {
+            setDoc(doc(db, "tasks", this.user.uid), {
               created_at: Timestamp.fromDate(new Date()),
               updated_at: Timestamp.fromDate(new Date()),
               tasks: [],
@@ -139,11 +148,50 @@ export const useUserStore = defineStore("user", {
         });
     },
     getUserInfo() {
-      const user = auth.currentUser;
-      const unsub = onSnapshot(doc(db, "users", user.uid), (doc) => {
+      const unsub = onSnapshot(doc(db, "users", this.user.uid), (doc) => {
         this.userInfo = doc.data();
+        if (this.userInfo.updatedProfileImage) {
+          getDownloadURL(ref(storage, "profile/" + this.userInfo.profile_image))
+            .then((url) => {
+              // Or inserted into an <img> element
+              this.profileImg = url;
+              // const img = document.getElementById("profileImg");
+              // img.setAttribute("src", url);
+            })
+            .catch((error) => {});
+        }
       });
       console.log(this.userInfo);
+    },
+    uploadImage() {
+      this.loadingUpdateImg = true;
+      var updateImg = document.getElementById("updateImg");
+      var inputFile = document.getElementById("inputFile");
+      updateImg.src = URL.createObjectURL(inputFile.files[0]);
+      var image = inputFile.files[0];
+
+      const storageRef = ref(storage, "profile/" + image.name);
+
+      //uploads image to database
+      uploadBytes(storageRef, image).then((snapshot) => {
+        //updates the user profile picture information
+        updateDoc(doc(db, "users", this.user.uid), {
+          profile_image: image.name,
+          updatedProfileImage: true,
+        });
+        this.loadingUpdateImg = false;
+      });
+    },
+    deleteImage() {
+      this.loadingDeleteImg = true;
+
+      const storageRef = ref(storage, "profile/" + this.userInfo.profile_image);
+      deleteObject(storageRef).then(() => {
+        updateDoc(doc(db, "users", this.user.uid), {
+          updatedProfileImage: false,
+        });
+        this.loadingDeleteImg = false;
+      });
     },
   },
 });
