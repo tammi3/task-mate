@@ -1,11 +1,19 @@
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  reauthenticateWithCredential,
+  deleteUser,
+  deleteDoc,
+  EmailAuthProvider,
   GoogleAuthProvider,
   signInWithPopup,
   storage,
   deleteObject,
   ref,
+  query,
+  collection,
+  where,
+  getDocs,
   getDownloadURL,
   uploadBytes,
   onSnapshot,
@@ -34,7 +42,6 @@ export const useUserStore = defineStore("user", {
     lastName: "",
     profileImg: "",
     router: useRouter(),
-    user: auth.currentUser,
     userInfo: {},
   }),
   getters: {},
@@ -46,9 +53,10 @@ export const useUserStore = defineStore("user", {
 
       createUserWithEmailAndPassword(auth, email, password)
         .then((cred) => {
+          const user = auth.currentUser;
           console.log(user);
           this.loggedIn = true;
-          setDoc(doc(db, "users", this.user.uid), {
+          setDoc(doc(db, "users", user.uid), {
             email: this.email,
             password: this.password,
             name: {
@@ -56,19 +64,13 @@ export const useUserStore = defineStore("user", {
               lastname: this.lastName,
             },
             updatedProfileImage: false,
-            userId: this.user.uid,
+            userId: user.uid,
             creationTime: user.metadata.creationTime,
           }).then(() => {
             this.email = "";
             this.password = "";
-
             this.firstName = "";
             this.lastName = "";
-            setDoc(doc(db, "tasks", this.user.uid), {
-              created_at: Timestamp.fromDate(new Date()),
-              updated_at: Timestamp.fromDate(new Date()),
-              tasks: [],
-            });
           });
           const Toast = Swal.mixin({
             toast: true,
@@ -148,7 +150,8 @@ export const useUserStore = defineStore("user", {
         });
     },
     getUserInfo() {
-      const unsub = onSnapshot(doc(db, "users", this.user.uid), (doc) => {
+      const user = auth.currentUser;
+      const unsub = onSnapshot(doc(db, "users", user.uid), (doc) => {
         this.userInfo = doc.data();
         if (this.userInfo.updatedProfileImage) {
           getDownloadURL(ref(storage, "profile/" + this.userInfo.profile_image))
@@ -165,8 +168,9 @@ export const useUserStore = defineStore("user", {
     },
     uploadImage() {
       this.loadingUpdateImg = true;
-      var updateImg = document.getElementById("updateImg");
-      var inputFile = document.getElementById("inputFile");
+      const user = auth.currentUser;
+      const updateImg = document.getElementById("updateImg");
+      const inputFile = document.getElementById("inputFile");
       updateImg.src = URL.createObjectURL(inputFile.files[0]);
       var image = inputFile.files[0];
 
@@ -175,7 +179,7 @@ export const useUserStore = defineStore("user", {
       //uploads image to database
       uploadBytes(storageRef, image).then((snapshot) => {
         //updates the user profile picture information
-        updateDoc(doc(db, "users", this.user.uid), {
+        updateDoc(doc(db, "users", user.uid), {
           profile_image: image.name,
           updatedProfileImage: true,
         });
@@ -184,14 +188,77 @@ export const useUserStore = defineStore("user", {
     },
     deleteImage() {
       this.loadingDeleteImg = true;
-
+      const user = auth.currentUser;
       const storageRef = ref(storage, "profile/" + this.userInfo.profile_image);
       deleteObject(storageRef).then(() => {
-        updateDoc(doc(db, "users", this.user.uid), {
+        updateDoc(doc(db, "users", user.uid), {
           updatedProfileImage: false,
         });
         this.loadingDeleteImg = false;
       });
+    },
+    async deleteAccount() {
+      const { value: password } = await Swal.fire({
+        title: "Enter your password",
+        input: "password",
+        // inputLabel: "Your password is required to delete your account",
+        showCancelButton: true,
+        inputPlaceholder: "Enter your password",
+        inputAttributes: {
+          maxlength: "10",
+          autocapitalize: "off",
+          autocorrect: "off",
+        },
+        inputValidator: (value) => {
+          if (!value) {
+            return "Your password is required to delete your account";
+          }
+        },
+      });
+      if (password) {
+        const user = auth.currentUser;
+        const storageRef = ref(
+          storage,
+          "profile/" + this.userInfo.profile_image
+        );
+        const userRef = doc(db, "users", user.uid);
+        if (this.userInfo.updatedProfileImage) {
+          const credential = EmailAuthProvider.credential(user.email, password);
+          reauthenticateWithCredential(user, credential)
+            .then(() => {
+              deleteUser(user)
+                .then(() => {
+                  deleteObject(storageRef)
+                    .then(() => {
+                      deleteDoc(userRef).then(() => {
+                        // this.$router.replace({ name: "Signup" });
+                      });
+                    })
+                    .catch((error) => {});
+                })
+                .catch((error) => {});
+            })
+            .catch((error) => {
+              // An error ocurred
+              Swal.fire("Incorrect password");
+            });
+        } else {
+          const credential = EmailAuthProvider.credential(user.email, password);
+          reauthenticateWithCredential(user, credential)
+            .then(() => {
+              deleteUser(user)
+                .then(() => {
+                  deleteDoc(userRef).then(() => {
+                    // this.$router.replace({ name: "Signup" });
+                  });
+                })
+                .catch((error) => {});
+            })
+            .catch((error) => {
+              Swal.fire("Incorrect password");
+            });
+        }
+      }
     },
   },
 });
