@@ -10,6 +10,8 @@ const {
   priorities,
   currentFilter,
   filters,
+  labels,
+  folder,
   filteredTasks,
   sortBy,
   filterByPriority,
@@ -27,11 +29,40 @@ function toggleTaskModal() {
   }
   showModal.value = !showModal.value;
 }
+function loading() {
+  const loadingIndicator = document.getElementById("loading-indicator");
+  const noTasks = document.getElementById("no-tasks");
+  if (noTasks.classList.contains("hidden")) {
+    // Show loading indicator and hide noTasks
+    loadingIndicator.classList.remove("hidden");
+    noTasks.classList.add("hidden");
 
+    // After 2 seconds, hide loading indicator and show noTasks
+    setTimeout(() => {
+      loadingIndicator.classList.add("hidden");
+      noTasks.classList.remove("hidden");
+    }, 2000);
+  } else {
+    // Show loading indicator and hide noTasks
+    noTasks.classList.add("hidden");
+    loadingIndicator.classList.remove("hidden");
+
+    // After 2 seconds, hide loading indicator and show noTasks
+    setTimeout(() => {
+      noTasks.classList.remove("hidden");
+      loadingIndicator.classList.add("hidden");
+    }, 2000);
+  }
+}
+
+async function getSortAndFilterTasks(filter) {
+  await taskStore.sortAndFilterTasks(filter);
+  loading();
+}
 onMounted(async () => {
   taskStore.getPriorities();
-
-  await taskStore.sortAndFilterTasks(currentFilter.value);
+  taskStore.getLabels();
+  await getSortAndFilterTasks(currentFilter.value);
 });
 </script>
 <template>
@@ -47,7 +78,7 @@ onMounted(async () => {
           class="hidden lg:block"
           v-for="filter in filters"
           :key="filter"
-          @click="taskStore.sortAndFilterTasks(filter.name)"
+          @click="getSortAndFilterTasks(filter.name)"
           :class="[
             'flex',
             'justify-center',
@@ -73,7 +104,7 @@ onMounted(async () => {
           ></label>
           <select
             v-model="currentFilter"
-            @change="taskStore.sortAndFilterTasks(currentFilter)"
+            @change="getSortAndFilterTasks(currentFilter)"
             class="w-full opacity-0"
             name="filter"
             id="filterSelect"
@@ -95,13 +126,13 @@ onMounted(async () => {
           <i class="fa-solid fa-box-archive"></i><span>Add Task</span>
         </button>
       </div>
-      <div class="max-w-sm flex space-x-4">
-        <div class="flex-col flex space-y-2 w-2/4">
+      <div class="max-w-md flex space-x-4 overflow-x-auto">
+        <div class="flex-col flex space-y-2 w-1/3">
           <label for="sort">Sort by</label>
           <select
             id="sort"
             v-model="sortBy"
-            @change="taskStore.sortAndFilterTasks(currentFilter)"
+            @change="getSortAndFilterTasks(currentFilter)"
             class="block appearance-none rounded-md bg-white border border-gray-300 hover:border-gray-500 p-2 shadow leading-tight focus:outline-none focus:shadow-outline"
           >
             <option selected>Newest</option>
@@ -110,17 +141,30 @@ onMounted(async () => {
             <option>Z-A</option>
           </select>
         </div>
-        <div class="flex-col flex space-y-2 w-2/4">
+        <div class="flex-col flex space-y-2 w-1/3">
           <label for="priority">Priority</label>
           <select
             id="priority"
             v-model="filterByPriority"
-            @change="taskStore.sortAndFilterTasks(currentFilter)"
+            @change="getSortAndFilterTasks(currentFilter)"
             class="block appearance-none rounded-md bg-white border border-gray-300 hover:border-gray-500 p-2 shadow leading-tight focus:outline-none focus:shadow-outline"
           >
             <option selected>Any</option>
             <option v-for="priority in priorities" :key="priority">
               {{ priority }}
+            </option>
+          </select>
+        </div>
+        <div class="flex-col flex space-y-2 w-1/3">
+          <label for="sort">Folder</label>
+          <select
+            id="sort"
+            v-model="folder"
+            class="block appearance-none rounded-md bg-white border border-gray-300 hover:border-gray-500 p-2 shadow leading-tight focus:outline-none focus:shadow-outline"
+          >
+            <!-- <option selected>Newest</option> -->
+            <option v-for="label in labels" :key="label" :value="label.name">
+              {{ label.name }}
             </option>
           </select>
         </div>
@@ -130,8 +174,10 @@ onMounted(async () => {
       v-if="sortedAndFilteredTasks.length === 0"
       class="w-full h-[30rem] space-y-3 overflow-y-auto relative text-lg font-bold flex justify-center items-center lg:w-[90rem]"
     >
-      No {{ currentFilter }}
-      Tasks
+      <div id="loading-indicator" class="animate-spin">
+        <i class="fa-solid fa-hourglass-start text-2xl"></i>
+      </div>
+      <p id="no-tasks" class="hidden">No {{ currentFilter }} Tasks</p>
     </div>
     <div
       v-else
@@ -151,11 +197,28 @@ onMounted(async () => {
           <span class="checkmark"></span>
         </label>
         <div class="flex space-x-2 lg:space-x-4 w-full">
-          <router-link
-            :to="`/Dashboard/Task/${index}`"
-            class="w-3/4 lg:w-2/4 px-2 truncate hover:underline"
-            >{{ task.name }}</router-link
-          >
+          <div class="w-3/4 lg:w-2/4 flex space-x-2 px-2">
+            <router-link
+              :to="`/Dashboard/Task/${index}`"
+              class="w-3/4 truncate hover:underline"
+              >{{ task.name }}</router-link
+            >
+            <div
+              class="flex space-x-2 pl-2 items-center justify-start w-1/4 font-medium"
+            >
+              <i
+                :class="[
+                  'fa-solid',
+                  'fa-folder',
+                  task.label.name == 'Work' ? 'text-work' : '',
+                  task.label.name == 'Others' ? 'text-others' : '',
+                  task.label.name == 'Personal' ? 'text-personal' : '',
+                  task.label.name == 'School' ? 'text-school' : '',
+                ]"
+              ></i>
+              <p>{{ task.label.name }}</p>
+            </div>
+          </div>
 
           <div
             :class="[

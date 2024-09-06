@@ -4,7 +4,10 @@ export default {
   theme: {
     extend: {
       colors: {
-        "cyan-blue": "#bfd6ff",
+        work: "#a18aff",
+        school: "#825B32",
+        personal: "#00b3ff ",
+        others: "#fd99af",
       },
       fontFamily: {
         Poppins: ["Poppins", "sans-serif"],

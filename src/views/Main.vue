@@ -6,6 +6,7 @@ import { getChart } from "@/utilities/getChart";
 import data from "@/db/quotes.json";
 
 const quoteOfTheDay = ref("");
+const todayTasks = ref("");
 const quotes = data.quotes;
 const taskStore = useTasksStore();
 const { tasks, sortedAndFilteredTasks, currentFilter } = storeToRefs(taskStore);
@@ -15,9 +16,9 @@ const currentDate = new Date();
 function renderCalendar() {
   const calendarDays = document.getElementById("calendarDays");
   const monthYear = document.getElementById("monthYear");
-  calendarDays.innerHTML = "";
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
+  calendarDays.innerHTML = "";
   const firstDayOfMonth = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
 
@@ -32,7 +33,19 @@ function renderCalendar() {
 
   // Current month's dates
   for (let day = 1; day <= daysInMonth; day++) {
-    calendarDays.innerHTML += `<div  class="text-gray-800 bg-gray-200 px-4 py-2 flex items-center justify-center rounded-lg cursor-pointer hover:bg-purple-300 transition">${day}</div>`;
+    const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(
+      day
+    ).padStart(2, "0")}`;
+
+    // Check if there's a task for the current day by matching the due_date
+    const hasTask = tasks.value.some((task) => task.start_date === dateStr);
+
+    // Highlight if the day has a task
+    const dayClass = hasTask
+      ? "text-white bg-purple-600" // Highlighted color for task days
+      : "text-gray-800 bg-gray-200"; // Default color for non-task days
+
+    calendarDays.innerHTML += `<div  class="${dayClass} text-gray-800 bg-gray-200 px-4 py-2 flex items-center justify-center rounded-lg cursor-pointer hover:bg-purple-300 transition">${day}</div>`;
   }
 }
 function prevMonthCal() {
@@ -63,10 +76,21 @@ function getRandomIndexForToday(arrayLength) {
 
   return index;
 }
+async function getTodayTasks() {
+  await taskStore.sortAndFilterTasks("Recent");
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+  const today = currentDate.getDay();
+  const todayDateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(
+    today
+  ).padStart(2, "0")}`;
+  todayTasks.value = sortedAndFilteredTasks.value.filter(
+    (task) => task.start_date === todayDateStr
+  );
+}
 onMounted(async () => {
   await taskStore.checkAndArchiveTasks();
-
-  await taskStore.sortAndFilterTasks("Recent");
+  await getTodayTasks();
   renderCalendar();
   chartJs();
   const randomIndex = getRandomIndexForToday(quotes.length);
@@ -89,8 +113,15 @@ onMounted(async () => {
           </div>
           <div class="flex flex-col p-2 h-full overflow-y-auto space-y-3">
             <div
-              class="bg-gray-300 p-4 rounded-md flex space relative"
-              v-for="task in sortedAndFilteredTasks.slice(0, 3)"
+              v-if="todayTasks.length == 0"
+              class="justify-center items-center h-full w-full text-md font-semibold flex relative"
+            >
+              No tasks today :(
+            </div>
+            <div
+              v-else
+              class="bg-gray-300 p-4 rounded-md flex relative"
+              v-for="task in todayTasks"
               :key="task"
             >
               <div class="truncate w-3/4">{{ task.name }}</div>
@@ -101,7 +132,10 @@ onMounted(async () => {
                   :class="[
                     'fa-solid',
                     'fa-folder',
-                    `text-[${task.label.color.trim()}]`,
+                    task.label.name == 'Work' ? 'text-work' : '',
+                    task.label.name == 'Others' ? 'text-others' : '',
+                    task.label.name == 'Personal' ? 'text-personal' : '',
+                    task.label.name == 'School' ? 'text-school' : '',
                   ]"
                 ></i>
                 <p>{{ task.label.name }}</p>
@@ -109,7 +143,7 @@ onMounted(async () => {
             </div>
           </div>
           <div
-            class="absolute bottom-0 w-full bg-white opacity-45 p-8 rounded-lg"
+            class="absolute bottom-0 w-full backdrop-blur-md opacity opacity-75 px-8 pb-8 pt-[29px] rounded-b-lg"
           ></div>
           <router-link
             class="absolute bottom-2 z-10 right-2 p-2 underline"
@@ -124,14 +158,16 @@ onMounted(async () => {
             Quote of the day
           </div>
           <div
-            class="flex px-10 py-4 h-full overflow-y-auto space-y-3 text-lg justify-center items-start"
+            class="flex px-6 text-center py-4 h-full overflow-y-auto space-y-3 text-lg font-semibold justify-center items-center"
           >
             {{ quoteOfTheDay }}
           </div>
         </div>
       </div>
       <div class="w-full flex md:justify-center overflow-x-auto">
-        <div style="width: 900px"><canvas id="acquisitions"></canvas></div>
+        <div style="width: 900px">
+          <canvas id="acquisitions" class="h-[300px] lg:h-full"></canvas>
+        </div>
       </div>
     </div>
     <div

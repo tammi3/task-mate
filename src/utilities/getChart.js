@@ -5,6 +5,12 @@ import { storeToRefs } from "pinia";
 export function getChart() {
   const taskStore = useTasksStore();
   const { tasks } = storeToRefs(taskStore);
+  // const canvas = document.getElementById("myChart");
+  // const isMobile = window.innerWidth <= 768;
+
+  // if (isMobile) {
+  //   canvas.height = 500; // Set the height for mobile view
+  // }
 
   const currentDate = new Date();
   const months = [
@@ -188,7 +194,7 @@ export function getChart() {
             },
             padding: {
               top: 10,
-              bottom: 30,
+              bottom: 10,
             },
           },
           labels: {

@@ -31,6 +31,7 @@ export const useTasksStore = defineStore("tasksStore", {
     labels: [],
     priorities: [],
     filterByPriority: "Any",
+    folder: "",
     sortBy: "Newest",
     taskName: "",
     currentFilter: "Recent",
@@ -41,6 +42,7 @@ export const useTasksStore = defineStore("tasksStore", {
     startDate: "",
     taskPrioprity: "",
     taskLabel: { name: "", color: "" },
+    folderTasks: [],
   }),
   getters: {},
   actions: {
@@ -697,6 +699,9 @@ export const useTasksStore = defineStore("tasksStore", {
       );
 
       return differenceInDays;
+    },
+    getFolderTasks(label) {
+      this.getTasks("Recent");
     },
   },
 });

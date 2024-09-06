@@ -40,7 +40,7 @@ const router = createRouter({
         },
         {
           path: "Task/:id",
-          name: "Notes",
+          name: "ViewTask",
           component: () => import("../views/ViewTask.vue"),
         },
         {
