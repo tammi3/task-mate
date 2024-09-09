@@ -31,7 +31,7 @@ export const useTasksStore = defineStore("tasksStore", {
     labels: [],
     priorities: [],
     filterByPriority: "Any",
-    folder: "",
+    filterByFolder: "All",
     sortBy: "Newest",
     taskName: "",
     currentFilter: "Recent",
@@ -116,472 +116,60 @@ export const useTasksStore = defineStore("tasksStore", {
       this.currentFilter = filter;
       this.sortBy = "Newest";
       this.filterByPriority = "Any";
+      this.filterByFolder = "All";
     },
     async sortAndFilterTasks(filter) {
       await this.getTasks(filter);
-      // filter and sort tasks in recent
 
-      if (this.currentFilter == "Recent") {
-        if (this.sortBy == "Newest" && this.filterByPriority == "Any") {
-          const filterByCompleted = this.tasks.filter(
-            (task) => task.isCompleted === false && task.isArchived === false
-          );
-          this.filteredTasks = filterByCompleted;
-          this.sortByStartDateAndTime("descending");
-        }
-        if (this.sortBy == "Newest" && this.filterByPriority == "Low") {
-          const filterByCompleted = this.tasks.filter(
-            (task) => task.isCompleted === false && task.isArchived === false
-          );
-          const filterByPriority = filterByCompleted.filter(
-            (task) => task.priority === "Low"
-          );
-          this.filteredTasks = filterByPriority;
-          this.sortByStartDateAndTime("descending");
-        }
-        if (this.sortBy == "Newest" && this.filterByPriority == "Medium") {
-          const filterByCompleted = this.tasks.filter(
-            (task) => task.isCompleted === false && task.isArchived === false
-          );
-          const filterByPriority = filterByCompleted.filter(
-            (task) => task.priority === "Medium"
-          );
-          this.filteredTasks = filterByPriority;
-          this.sortByStartDateAndTime("descending");
-        }
-        if (this.sortBy == "Newest" && this.filterByPriority == "High") {
-          const filterByCompleted = this.tasks.filter(
-            (task) => task.isCompleted === false && task.isArchived === false
-          );
-          const filterByPriority = filterByCompleted.filter(
-            (task) => task.priority === "High"
-          );
-          this.filteredTasks = filterByPriority;
-          this.sortByStartDateAndTime("descending");
-        }
-        if (this.sortBy == "Oldest" && this.filterByPriority == "Any") {
-          const filterByCompleted = this.tasks.filter(
-            (task) => task.isCompleted === false && task.isArchived === false
-          );
-          this.filteredTasks = filterByCompleted;
-          this.sortByStartDateAndTime("ascending");
-        }
-        if (this.sortBy == "Oldest" && this.filterByPriority == "Low") {
-          const filterByCompleted = this.tasks.filter(
-            (task) => task.isCompleted === false && task.isArchived === false
-          );
-          const filterByPriority = filterByCompleted.filter(
-            (task) => task.priority === "Low"
-          );
-          this.filteredTasks = filterByPriority;
-          this.sortByStartDateAndTime("ascending");
-        }
-        if (this.sortBy == "Oldest" && this.filterByPriority == "Medium") {
-          const filterByCompleted = this.tasks.filter(
-            (task) => task.isCompleted === false && task.isArchived === false
-          );
-          const filterByPriority = filterByCompleted.filter(
-            (task) => task.priority === "Medium"
-          );
-          this.filteredTasks = filterByPriority;
-          this.sortByStartDateAndTime("ascending");
-        }
-        if (this.sortBy == "Oldest" && this.filterByPriority == "High") {
-          const filterByCompleted = this.tasks.filter(
-            (task) => task.isCompleted === false && task.isArchived === false
-          );
-          const filterByPriority = filterByCompleted.filter(
-            (task) => task.priority === "High"
-          );
-          this.filteredTasks = filterByPriority;
-          this.sortByStartDateAndTime("ascending");
-        }
-        if (this.sortBy == "A-Z" && this.filterByPriority == "Any") {
-          const filterByCompleted = this.tasks.filter(
-            (task) => task.isCompleted === false && task.isArchived === false
-          );
-          this.filteredTasks = filterByCompleted;
-          this.sortByAlphabet("A-Z");
-        }
-        if (this.sortBy == "A-Z" && this.filterByPriority == "Low") {
-          const filterByCompleted = this.tasks.filter(
-            (task) => task.isCompleted === false && task.isArchived === false
-          );
-          const filterByPriority = filterByCompleted.filter(
-            (task) => task.priority === "Low"
-          );
-          this.filteredTasks = filterByPriority;
-          this.sortByAlphabet("A-Z");
-        }
-        if (this.sortBy == "A-Z" && this.filterByPriority == "Medium") {
-          const filterByCompleted = this.tasks.filter(
-            (task) => task.isCompleted === false && task.isArchived === false
-          );
-          const filterByPriority = filterByCompleted.filter(
-            (task) => task.priority === "Medium"
-          );
-          this.filteredTasks = filterByPriority;
-          this.sortByAlphabet("A-Z");
-        }
-        if (this.sortBy == "A-Z" && this.filterByPriority == "High") {
-          const filterByCompleted = this.tasks.filter(
-            (task) => task.isCompleted === false && task.isArchived === false
-          );
-          const filterByPriority = filterByCompleted.filter(
-            (task) => task.priority === "High"
-          );
-          this.filteredTasks = filterByPriority;
-          this.sortByAlphabet("A-Z");
-        }
+      const isCompleted = this.currentFilter === "Completed";
+      const isArchived = this.currentFilter === "Archived";
+      const sortOrder =
+        this.sortBy === "Newest"
+          ? "descending"
+          : this.sortBy === "Oldest"
+          ? "ascending"
+          : this.sortBy;
 
-        if (this.sortBy == "Z-A" && this.filterByPriority == "Any") {
-          const filterByCompleted = this.tasks.filter(
-            (task) => task.isCompleted === false && task.isArchived === false
-          );
-          this.filteredTasks = filterByCompleted;
-          this.sortByAlphabet("Z-A");
+      // Helper function to filter by completion and archived status
+      const filterByStatus = () => {
+        return this.tasks.filter((task) => {
+          const isTaskCompleted = task.isCompleted === isCompleted;
+          const isTaskArchived = task.isArchived === isArchived;
+          return isTaskCompleted && isTaskArchived;
+        });
+      };
 
-          if (this.sortBy == "Z-A" && this.filterByPriority == "Low") {
-            const filterByCompleted = this.tasks.filter(
-              (task) => task.isCompleted === false && task.isArchived === false
-            );
-            const filterByPriority = filterByCompleted.filter(
-              (task) => task.priority === "Low"
-            );
-            this.filteredTasks = filterByPriority;
-            this.sortByAlphabet("Z-A");
-          }
-          if (this.sortBy == "Z-A" && this.filterByPriority == "Medium") {
-            const filterByCompleted = this.tasks.filter(
-              (task) => task.isCompleted === false && task.isArchived === false
-            );
-            const filterByPriority = filterByCompleted.filter(
-              (task) => task.priority === "Medium"
-            );
-            this.filteredTasks = filterByPriority;
-            this.sortByAlphabet("Z-A");
-          }
-          if (this.sortBy == "Z-A" && this.filterByPriority == "High") {
-            const filterByCompleted = this.tasks.filter(
-              (task) => task.isCompleted === false && task.isArchived === false
-            );
-            const filterByPriority = filterByCompleted.filter(
-              (task) => task.priority === "High"
-            );
-            this.filteredTasks = filterByPriority;
-            this.sortByAlphabet("Z-A");
-          }
-        }
-      }
+      // Helper function to filter by priority
+      const filterByPriority = (tasks, priority) => {
+        return priority !== "Any"
+          ? tasks.filter((task) => task.priority === priority)
+          : tasks;
+      };
+      // Helper function to filter by folder
+      const filterByFolder = (tasks, folder) => {
+        return folder !== "All"
+          ? tasks.filter((task) => task.label.name === folder)
+          : tasks;
+      };
 
-      // filter and sort tasks in completed
+      // Apply filters
+      const filteredStatus = filterByStatus();
+      const filteredPriority = filterByPriority(
+        filteredStatus,
+        this.filterByPriority
+      );
+      const filteredFolder = filterByFolder(
+        filteredPriority,
+        this.filterByFolder
+      );
 
-      if (this.currentFilter == "Completed") {
-        if (this.sortBy == "Newest" && this.filterByPriority == "Any") {
-          const filterByCompleted = this.tasks.filter(
-            (task) => task.isCompleted === true && task.isArchived === false
-          );
-          this.filteredTasks = filterByCompleted;
-          this.sortByStartDateAndTime("descending");
-        }
-        if (this.sortBy == "Newest" && this.filterByPriority == "Low") {
-          const filterByCompleted = this.tasks.filter(
-            (task) => task.isCompleted === true && task.isArchived === false
-          );
-          const filterByPriority = filterByCompleted.filter(
-            (task) => task.priority === "Low"
-          );
-          this.filteredTasks = filterByPriority;
-          this.sortByStartDateAndTime("descending");
-        }
-        if (this.sortBy == "Newest" && this.filterByPriority == "Medium") {
-          const filterByCompleted = this.tasks.filter(
-            (task) => task.isCompleted === true && task.isArchived === false
-          );
-          const filterByPriority = filterByCompleted.filter(
-            (task) => task.priority === "Medium"
-          );
-          this.filteredTasks = filterByPriority;
-          this.sortByStartDateAndTime("descending");
-        }
-        if (this.sortBy == "Newest" && this.filterByPriority == "High") {
-          const filterByCompleted = this.tasks.filter(
-            (task) => task.isCompleted === true && task.isArchived === false
-          );
-          const filterByPriority = filterByCompleted.filter(
-            (task) => task.priority === "High"
-          );
-          this.filteredTasks = filterByPriority;
-          this.sortByStartDateAndTime("descending");
-        }
-        if (this.sortBy == "Oldest" && this.filterByPriority == "Any") {
-          const filterByCompleted = this.tasks.filter(
-            (task) => task.isCompleted === true && task.isArchived === false
-          );
-          this.filteredTasks = filterByCompleted;
-          this.sortByStartDateAndTime("ascending");
-        }
-        if (this.sortBy == "Oldest" && this.filterByPriority == "Low") {
-          const filterByCompleted = this.tasks.filter(
-            (task) => task.isCompleted === true && task.isArchived === false
-          );
-          const filterByPriority = filterByCompleted.filter(
-            (task) => task.priority === "Low"
-          );
-          this.filteredTasks = filterByPriority;
-          this.sortByStartDateAndTime("ascending");
-        }
-        if (this.sortBy == "Oldest" && this.filterByPriority == "Medium") {
-          const filterByCompleted = this.tasks.filter(
-            (task) => task.isCompleted === true && task.isArchived === false
-          );
-          const filterByPriority = filterByCompleted.filter(
-            (task) => task.priority === "Medium"
-          );
-          this.filteredTasks = filterByPriority;
-          this.sortByStartDateAndTime("ascending");
-        }
-        if (this.sortBy == "Oldest" && this.filterByPriority == "High") {
-          const filterByCompleted = this.tasks.filter(
-            (task) => task.isCompleted === true && task.isArchived === false
-          );
-          const filterByPriority = filterByCompleted.filter(
-            (task) => task.priority === "High"
-          );
-          this.filteredTasks = filterByPriority;
-          this.sortByStartDateAndTime("ascending");
-        }
-
-        if (this.sortBy == "A-Z" && this.filterByPriority == "Any") {
-          const filterByCompleted = this.tasks.filter(
-            (task) => task.isCompleted === true && task.isArchived === false
-          );
-          this.filteredTasks = filterByCompleted;
-          this.sortByAlphabet("A-Z");
-        }
-        if (this.sortBy == "A-Z" && this.filterByPriority == "Low") {
-          const filterByCompleted = this.tasks.filter(
-            (task) => task.isCompleted === true && task.isArchived === false
-          );
-          const filterByPriority = filterByCompleted.filter(
-            (task) => task.priority === "Low"
-          );
-          this.filteredTasks = filterByPriority;
-          this.sortByAlphabet("A-Z");
-        }
-        if (this.sortBy == "A-Z" && this.filterByPriority == "Medium") {
-          const filterByCompleted = this.tasks.filter(
-            (task) => task.isCompleted === true && task.isArchived === false
-          );
-          const filterByPriority = filterByCompleted.filter(
-            (task) => task.priority === "Medium"
-          );
-          this.filteredTasks = filterByPriority;
-          this.sortByAlphabet("A-Z");
-        }
-        if (this.sortBy == "A-Z" && this.filterByPriority == "High") {
-          const filterByCompleted = this.tasks.filter(
-            (task) => task.isCompleted === true && task.isArchived === false
-          );
-          const filterByPriority = filterByCompleted.filter(
-            (task) => task.priority === "High"
-          );
-          this.filteredTasks = filterByPriority;
-          this.sortByAlphabet("A-Z");
-        }
-
-        if (this.sortBy == "Z-A" && this.filterByPriority == "Any") {
-          const filterByCompleted = this.tasks.filter(
-            (task) => task.isCompleted === true && task.isArchived === false
-          );
-          this.filteredTasks = filterByCompleted;
-          this.sortByAlphabet("Z-A");
-
-          if (this.sortBy == "Z-A" && this.filterByPriority == "Low") {
-            const filterByCompleted = this.tasks.filter(
-              (task) => task.isCompleted === true && task.isArchived === false
-            );
-            const filterByPriority = filterByCompleted.filter(
-              (task) => task.priority === "Low"
-            );
-            this.filteredTasks = filterByPriority;
-            this.sortByAlphabet("Z-A");
-          }
-          if (this.sortBy == "Z-A" && this.filterByPriority == "Medium") {
-            const filterByCompleted = this.tasks.filter(
-              (task) => task.isCompleted === true && task.isArchived === false
-            );
-            const filterByPriority = filterByCompleted.filter(
-              (task) => task.priority === "Medium"
-            );
-            this.filteredTasks = filterByPriority;
-            this.sortByAlphabet("Z-A");
-          }
-          if (this.sortBy == "Z-A" && this.filterByPriority == "High") {
-            const filterByCompleted = this.tasks.filter(
-              (task) => task.isCompleted === true && task.isArchived === false
-            );
-            const filterByPriority = filterByCompleted.filter(
-              (task) => task.priority === "High"
-            );
-            this.filteredTasks = filterByPriority;
-            this.sortByAlphabet("Z-A");
-          }
-        }
-      }
-      // filter and sort tasks in archived
-      if (this.currentFilter == "Archived") {
-        if (this.sortBy == "Newest" && this.filterByPriority == "Any") {
-          const filterByCompleted = this.tasks.filter(
-            (task) => task.isCompleted === false && task.isArchived === true
-          );
-          this.filteredTasks = filterByCompleted;
-          this.sortByStartDateAndTime("descending");
-        }
-        if (this.sortBy == "Newest" && this.filterByPriority == "Low") {
-          const filterByCompleted = this.tasks.filter(
-            (task) => task.isCompleted === false && task.isArchived === true
-          );
-          const filterByPriority = filterByCompleted.filter(
-            (task) => task.priority === "Low"
-          );
-          this.filteredTasks = filterByPriority;
-          this.sortByStartDateAndTime("descending");
-        }
-        if (this.sortBy == "Newest" && this.filterByPriority == "Medium") {
-          const filterByCompleted = this.tasks.filter(
-            (task) => task.isCompleted === false && task.isArchived === true
-          );
-          const filterByPriority = filterByCompleted.filter(
-            (task) => task.priority === "Medium"
-          );
-          this.filteredTasks = filterByPriority;
-          this.sortByStartDateAndTime("descending");
-        }
-        if (this.sortBy == "Newest" && this.filterByPriority == "High") {
-          const filterByCompleted = this.tasks.filter(
-            (task) => task.isCompleted === false && task.isArchived === true
-          );
-          const filterByPriority = filterByCompleted.filter(
-            (task) => task.priority === "High"
-          );
-          this.filteredTasks = filterByPriority;
-          this.sortByStartDateAndTime("descending");
-        }
-        if (this.sortBy == "Oldest" && this.filterByPriority == "Any") {
-          const filterByCompleted = this.tasks.filter(
-            (task) => task.isCompleted === false && task.isArchived === true
-          );
-          this.filteredTasks = filterByCompleted;
-          this.sortByStartDateAndTime("ascending");
-        }
-        if (this.sortBy == "Oldest" && this.filterByPriority == "Low") {
-          const filterByCompleted = this.tasks.filter(
-            (task) => task.isCompleted === false && task.isArchived === true
-          );
-          const filterByPriority = filterByCompleted.filter(
-            (task) => task.priority === "Low"
-          );
-          this.filteredTasks = filterByPriority;
-          this.sortByStartDateAndTime("ascending");
-        }
-        if (this.sortBy == "Oldest" && this.filterByPriority == "Medium") {
-          const filterByCompleted = this.tasks.filter(
-            (task) => task.isCompleted === false && task.isArchived === true
-          );
-          const filterByPriority = filterByCompleted.filter(
-            (task) => task.priority === "Medium"
-          );
-          this.filteredTasks = filterByPriority;
-          this.sortByStartDateAndTime("ascending");
-        }
-        if (this.sortBy == "Oldest" && this.filterByPriority == "High") {
-          const filterByCompleted = this.tasks.filter(
-            (task) => task.isCompleted === false && task.isArchived === true
-          );
-          const filterByPriority = filterByCompleted.filter(
-            (task) => task.priority === "High"
-          );
-          this.filteredTasks = filterByPriority;
-          this.sortByStartDateAndTime("ascending");
-        }
-
-        if (this.sortBy == "A-Z" && this.filterByPriority == "Any") {
-          const filterByCompleted = this.tasks.filter(
-            (task) => task.isCompleted === false && task.isArchived === true
-          );
-          this.filteredTasks = filterByCompleted;
-          this.sortByAlphabet("A-Z");
-        }
-        if (this.sortBy == "A-Z" && this.filterByPriority == "Low") {
-          const filterByCompleted = this.tasks.filter(
-            (task) => task.isCompleted === false && task.isArchived === true
-          );
-          const filterByPriority = filterByCompleted.filter(
-            (task) => task.priority === "Low"
-          );
-          this.filteredTasks = filterByPriority;
-          this.sortByAlphabet("A-Z");
-        }
-        if (this.sortBy == "A-Z" && this.filterByPriority == "Medium") {
-          const filterByCompleted = this.tasks.filter(
-            (task) => task.isCompleted === false && task.isArchived === true
-          );
-          const filterByPriority = filterByCompleted.filter(
-            (task) => task.priority === "Medium"
-          );
-          this.filteredTasks = filterByPriority;
-          this.sortByAlphabet("A-Z");
-        }
-        if (this.sortBy == "A-Z" && this.filterByPriority == "High") {
-          const filterByCompleted = this.tasks.filter(
-            (task) => task.isCompleted === false && task.isArchived === true
-          );
-          const filterByPriority = filterByCompleted.filter(
-            (task) => task.priority === "High"
-          );
-          this.filteredTasks = filterByPriority;
-          this.sortByAlphabet("A-Z");
-        }
-
-        if (this.sortBy == "Z-A" && this.filterByPriority == "Any") {
-          const filterByCompleted = this.tasks.filter(
-            (task) => task.isCompleted === false && task.isArchived === true
-          );
-          this.filteredTasks = filterByCompleted;
-          this.sortByAlphabet("Z-A");
-
-          if (this.sortBy == "Z-A" && this.filterByPriority == "Low") {
-            const filterByCompleted = this.tasks.filter(
-              (task) => task.isCompleted === false && task.isArchived === true
-            );
-            const filterByPriority = filterByCompleted.filter(
-              (task) => task.priority === "Low"
-            );
-            this.filteredTasks = filterByPriority;
-            this.sortByAlphabet("Z-A");
-          }
-          if (this.sortBy == "Z-A" && this.filterByPriority == "Medium") {
-            const filterByCompleted = this.tasks.filter(
-              (task) => task.isCompleted === false && task.isArchived === true
-            );
-            const filterByPriority = filterByCompleted.filter(
-              (task) => task.priority === "Medium"
-            );
-            this.filteredTasks = filterByPriority;
-            this.sortByAlphabet("Z-A");
-          }
-          if (this.sortBy == "Z-A" && this.filterByPriority == "High") {
-            const filterByCompleted = this.tasks.filter(
-              (task) => task.isCompleted === false && task.isArchived === true
-            );
-            const filterByPriority = filterByCompleted.filter(
-              (task) => task.priority === "High"
-            );
-            this.filteredTasks = filterByPriority;
-            this.sortByAlphabet("Z-A");
-          }
-        }
+      // Sort tasks based on sorting criteria
+      if (sortOrder === "ascending" || sortOrder === "descending") {
+        this.filteredTasks = filteredFolder;
+        this.sortByStartDateAndTime(sortOrder);
+      } else if (sortOrder === "A-Z" || sortOrder === "Z-A") {
+        this.filteredTasks = filteredFolder;
+        this.sortByAlphabet(sortOrder);
       }
     },
     sortByStartDateAndTime(order) {

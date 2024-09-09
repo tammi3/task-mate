@@ -52,6 +52,19 @@ function prevMonthCal() {
   currentDate.setMonth(currentDate.getMonth() - 1);
   renderCalendar();
 }
+function animateCards() {
+  const cards = document.getElementsByClassName("card");
+
+  for (let card = 0; card < cards.length; card++) {
+    cards[card].classList.add("opacity-0");
+    setTimeout(() => {
+      cards[card].classList.remove("opacity-0");
+      cards[card].classList.add("opacity-100");
+      cards[card].classList.add("animate__zoomIn");
+      cards[card].classList.add("animate__animated");
+    }, card * 400);
+  }
+}
 
 function nextMonthCal() {
   currentDate.setMonth(currentDate.getMonth() + 1);
@@ -89,12 +102,13 @@ async function getTodayTasks() {
   );
 }
 onMounted(async () => {
-  await taskStore.checkAndArchiveTasks();
-  await getTodayTasks();
   renderCalendar();
-  chartJs();
   const randomIndex = getRandomIndexForToday(quotes.length);
   quoteOfTheDay.value = quotes[randomIndex];
+  animateCards();
+  await taskStore.checkAndArchiveTasks();
+  chartJs();
+  await getTodayTasks();
 });
 </script>
 <template>
@@ -106,7 +120,7 @@ onMounted(async () => {
         class="flex flex-col space-y-4 w-full lg:flex-row lg:space-x-4 lg:space-y-0"
       >
         <div
-          class="bg-white rounded-lg w-full lg:w-[512px] h-[240px] flex flex-col space-y-2 relative"
+          class="card bg-white rounded-lg w-full lg:w-[512px] h-[240px] flex flex-col space-y-2 relative"
         >
           <div class="text-md border-b border-gray-500 p-4 font-semibold">
             Tasks
@@ -152,7 +166,7 @@ onMounted(async () => {
           >
         </div>
         <div
-          class="bg-white rounded-lg w-full lg:w-[512px] h-[240px] flex flex-col space-y-2"
+          class="card bg-white rounded-lg w-full lg:w-[512px] h-[240px] flex flex-col space-y-2"
         >
           <div class="text-lg border-b border-gray-500 p-4 font-semibold">
             Quote of the day
@@ -164,14 +178,14 @@ onMounted(async () => {
           </div>
         </div>
       </div>
-      <div class="w-full flex md:justify-center overflow-x-auto">
+      <div class="card w-full flex md:justify-center overflow-x-auto">
         <div style="width: 900px">
           <canvas id="acquisitions" class="h-[300px] lg:h-full"></canvas>
         </div>
       </div>
     </div>
     <div
-      class="bg-white shadow-lg rounded-lg px-4 py-8 md:p-10 lg:pr-16 w-full lg:w-[512px] flex flex-col space-y-2 items-center mx-auto"
+      class="card bg-white shadow-lg rounded-lg px-4 py-8 md:p-10 lg:pr-16 w-full lg:w-[512px] flex flex-col space-y-2 items-center mx-auto"
     >
       <!-- Calendar Header -->
       <div class="w-full flex space-x-2 justify-between items-center mb-4">

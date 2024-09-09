@@ -47,12 +47,22 @@ function toggleMenu() {
     menu.classList.remove("absolute");
   }
 }
+function loadingImg() {
+  const profileImg = document.getElementById("profileImg");
+  const skeleton = document.getElementById("profileImgSkeleton");
+  setTimeout(() => {
+    profileImg.classList.remove("hidden");
+    skeleton.classList.add("hidden");
+  }, 2000);
+}
 
 onMounted(async () => {
   userStore.getUserInfo();
+
   await taskStore.checkAndArchiveTasks();
 
   await taskStore.sortAndFilterTasks("Recent");
+  loadingImg();
 });
 </script>
 <template>
@@ -83,13 +93,20 @@ onMounted(async () => {
             alt="Profile Picture"
           />
           <!-- custom profile image -->
-          <img
-            v-show="userInfo.updatedProfileImage"
-            id="profileImg"
-            class="w-16 h-16 md:w-20 md:h-20 rounded-full object-cover"
-            :src="profileImg"
-            alt="Profile Picture"
-          />
+          <div class="w-16 h-16 md:w-20 md:h-20 relative">
+            <img
+              v-show="userInfo.updatedProfileImage"
+              id="profileImg"
+              class="w-16 h-16 md:w-20 md:h-20 rounded-full object-cover hidden"
+              :src="profileImg"
+              alt="Profile Picture"
+            />
+            <div
+              id="profileImgSkeleton"
+              class="animate-pulse bg-gray-300 w-16 h-16 md:w-20 md:h-20 rounded-full absolute inset-0"
+            ></div>
+          </div>
+
           <h1 class="font-semibold text-lg capitalize hidden lg:block">
             {{ userInfo.name.firstname }} {{ userInfo.name.lastname }}
           </h1>

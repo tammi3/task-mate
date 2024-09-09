@@ -3,6 +3,7 @@ import ManageTask from "@/components/ManageTask.vue";
 import { useTasksStore } from "@/stores/task";
 import { storeToRefs } from "pinia";
 import { onMounted, watch, ref } from "vue";
+
 const taskStore = useTasksStore();
 const {
   tasks,
@@ -11,7 +12,7 @@ const {
   currentFilter,
   filters,
   labels,
-  folder,
+  filterByFolder,
   filteredTasks,
   sortBy,
   filterByPriority,
@@ -21,6 +22,22 @@ const showModal = ref(false);
 watch(currentFilter, (newcurrentFilter, oldcurrentFilter) => {
   if (oldcurrentFilter !== newcurrentFilter) {
     taskStore.resetSortAndFilter(newcurrentFilter);
+    loading();
+  }
+});
+watch(filterByFolder, (newfilterByFolder, oldfilterByFolder) => {
+  if (oldfilterByFolder !== newfilterByFolder) {
+    loading();
+  }
+});
+watch(filterByPriority, (newfilterByPriority, oldfilterByPriority) => {
+  if (oldfilterByPriority !== newfilterByPriority) {
+    loading();
+  }
+});
+watch(sortBy, (newsortBy, oldsortBy) => {
+  if (oldsortBy !== newsortBy) {
+    loading();
   }
 });
 function toggleTaskModal() {
@@ -32,36 +49,42 @@ function toggleTaskModal() {
 function loading() {
   const loadingIndicator = document.getElementById("loading-indicator");
   const noTasks = document.getElementById("no-tasks");
-  if (noTasks.classList.contains("hidden")) {
+  if (loadingIndicator.classList.contains("hidden")) {
     // Show loading indicator and hide noTasks
     loadingIndicator.classList.remove("hidden");
     noTasks.classList.add("hidden");
+  }
+  // After 2 seconds, hide loading indicator and show noTasks
 
-    // After 2 seconds, hide loading indicator and show noTasks
-    setTimeout(() => {
-      loadingIndicator.classList.add("hidden");
-      noTasks.classList.remove("hidden");
-    }, 2000);
-  } else {
-    // Show loading indicator and hide noTasks
-    noTasks.classList.add("hidden");
-    loadingIndicator.classList.remove("hidden");
+  setTimeout(() => {
+    loadingIndicator.classList.add("hidden");
+    noTasks.classList.remove("hidden");
+  }, 2000);
+}
 
-    // After 2 seconds, hide loading indicator and show noTasks
+function animateTasks() {
+  const tasks = document.getElementsByClassName("task");
+
+  for (let task = 0; task < tasks.length; task++) {
+    tasks[task].classList.add("opacity-0");
     setTimeout(() => {
-      noTasks.classList.remove("hidden");
-      loadingIndicator.classList.add("hidden");
-    }, 2000);
+      tasks[task].classList.remove("opacity-0");
+      tasks[task].classList.add("opacity-100");
+      tasks[task].classList.add("animate__zoomIn");
+      tasks[task].classList.add("animate__animated");
+    }, task * 500);
   }
 }
-
 async function getSortAndFilterTasks(filter) {
   await taskStore.sortAndFilterTasks(filter);
-  loading();
+  animateTasks();
 }
+
 onMounted(async () => {
   taskStore.getPriorities();
   taskStore.getLabels();
+  loading();
+
   await getSortAndFilterTasks(currentFilter.value);
 });
 </script>
@@ -159,10 +182,11 @@ onMounted(async () => {
           <label for="sort">Folder</label>
           <select
             id="sort"
-            v-model="folder"
+            v-model="filterByFolder"
+            @change="getSortAndFilterTasks(currentFilter)"
             class="block appearance-none rounded-md bg-white border border-gray-300 hover:border-gray-500 p-2 shadow leading-tight focus:outline-none focus:shadow-outline"
           >
-            <!-- <option selected>Newest</option> -->
+            <option selected>All</option>
             <option v-for="label in labels" :key="label" :value="label.name">
               {{ label.name }}
             </option>
@@ -171,7 +195,7 @@ onMounted(async () => {
       </div>
     </div>
     <div
-      v-if="sortedAndFilteredTasks.length === 0"
+      v-show="sortedAndFilteredTasks.length === 0"
       class="w-full h-[30rem] space-y-3 overflow-y-auto relative text-lg font-bold flex justify-center items-center lg:w-[90rem]"
     >
       <div id="loading-indicator" class="animate-spin">
@@ -180,13 +204,14 @@ onMounted(async () => {
       <p id="no-tasks" class="hidden">No {{ currentFilter }} Tasks</p>
     </div>
     <div
-      v-else
+      v-show="sortedAndFilteredTasks.length > 0"
       class="w-full flex flex-col h-[30rem] space-y-3 overflow-y-auto overflow-x-auto"
     >
       <div
         v-for="(task, index) in sortedAndFilteredTasks"
         :key="task"
-        class="w-full bg-gray-200 px-2 py-4 flex items-center rounded-lg relative lg:w-[90rem]"
+        :id="task.id"
+        class="task w-full bg-gray-200 px-2 py-4 flex items-center rounded-lg relative lg:w-[90rem]"
       >
         <label
           @click="taskStore.taskCompleted(task)"

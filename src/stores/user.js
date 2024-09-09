@@ -164,7 +164,6 @@ export const useUserStore = defineStore("user", {
             .catch((error) => {});
         }
       });
-      console.log(this.userInfo);
     },
     uploadImage() {
       this.loadingUpdateImg = true;
