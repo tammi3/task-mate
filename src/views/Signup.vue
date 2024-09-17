@@ -4,8 +4,8 @@ import { storeToRefs } from "pinia";
 const userStore = useUserStore();
 const { firstName, lastName, email, password, loading, error } =
   storeToRefs(userStore);
-function handleSubmit() {
-  userStore.registerUser();
+async function handleSubmit() {
+  await userStore.registerUser();
 }
 </script>
 <template>
@@ -84,7 +84,13 @@ function handleSubmit() {
         type="submit"
         class="w-full bg-purple-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition duration-300"
       >
-        Login
+        <img
+          v-if="loading"
+          class="animate-spin-slow w-6"
+          src="../assets/loading.png"
+          alt=""
+        />
+        <span v-else>REGISTER</span>
       </button>
     </form>
 
@@ -96,6 +102,7 @@ function handleSubmit() {
 
     <div class="flex mt-6">
       <button
+        @click="userStore.signInWithGoogle()"
         class="w-full bg-white text-gray-700 border border-gray-300 py-2 px-4 rounded-lg shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 transition duration-300"
       >
         <img

@@ -9,6 +9,8 @@ import {
   signInWithPopup,
   storage,
   deleteObject,
+  linkWithPopup,
+  provider,
   ref,
   query,
   collection,
@@ -32,7 +34,6 @@ export const useUserStore = defineStore("user", {
   // arrow function recommended for full type inference
   state: () => ({
     loading: false,
-    loggedIn: false,
     error: "",
     loadingUpdateImg: false,
     loadingDeleteImg: false,
@@ -41,67 +42,109 @@ export const useUserStore = defineStore("user", {
     firstName: "",
     lastName: "",
     profileImg: "",
-    router: useRouter(),
+
     userInfo: {},
   }),
   getters: {},
   actions: {
-    registerUser() {
-      console.log(this.email, this.loading, this.password);
+    async registerUser() {
+      const router = useRouter();
       const email = this.email;
       const password = this.password;
+      this.loading = true;
+      this.error = "";
+      const validatePassword = (password) => {
+        // Regular expressions to match the conditions
+        const hasSixCharacters = /.{6,}/;
+        const hasSpecialCharacter = /[!@#$%^&*(),.?":{}|<>]/;
+        const hasNumber = /\d/;
 
-      createUserWithEmailAndPassword(auth, email, password)
-        .then((cred) => {
-          const user = auth.currentUser;
-          console.log(user);
-          this.loggedIn = true;
-          setDoc(doc(db, "users", user.uid), {
-            email: this.email,
-            password: this.password,
-            name: {
-              firstname: this.firstName,
-              lastname: this.lastName,
-            },
-            updatedProfileImage: false,
-            userId: user.uid,
-            creationTime: user.metadata.creationTime,
-          }).then(() => {
-            this.email = "";
-            this.password = "";
-            this.firstName = "";
-            this.lastName = "";
-          });
-          const Toast = Swal.mixin({
-            toast: true,
-            position: "top-end",
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true,
-            didOpen: (toast) => {
-              toast.onmouseenter = Swal.stopTimer;
-              toast.onmouseleave = Swal.resumeTimer;
-            },
-          });
-          Toast.fire({
-            icon: "success",
-            title: "Signed in successfully",
-          });
+        // Check all conditions
+        if (
+          hasSixCharacters.test(password) &&
+          hasSpecialCharacter.test(password) &&
+          hasNumber.test(password)
+        ) {
+          return true; // Password is valid
+        } else {
+          return false; // Password is invalid
+        }
+      };
+      const isPasswordStrong = validatePassword(password);
+      console.log(isPasswordStrong);
+      if (isPasswordStrong) {
+        await createUserWithEmailAndPassword(auth, email, password)
+          .then((cred) => {
+            const user = auth.currentUser;
+            console.log(user);
 
-          this.router.push({ path: "/Dashboard/Main" });
-        })
-        .catch((err) => {
-          if ((err.message = "Firebase: Error (auth/email-already-in-use).")) {
-            this.error = "Email already associated with another account.";
+            setDoc(doc(db, "users", user.uid), {
+              email: this.email,
+              password: this.password,
+              name: {
+                firstname: this.firstName,
+                lastname: this.lastName,
+              },
+              updatedProfileImage: false,
+              userId: user.uid,
+              creationTime: user.metadata.creationTime,
+            }).then(() => {
+              this.email = "";
+              this.password = "";
+              this.firstName = "";
+              this.lastName = "";
+            });
+            linkWithPopup(auth.currentUser, provider)
+              .then((result) => {
+                // Accounts successfully linked.
+                const credential =
+                  GoogleAuthProvider.credentialFromResult(result);
+                const user = result.user;
+                console.log(user);
+                // ...
+              })
+              .catch((error) => {
+                // Handle Errors here.
+                // ...
+              });
+            const Toast = Swal.mixin({
+              toast: true,
+              position: "top-end",
+              showConfirmButton: false,
+              timer: 3000,
+              timerProgressBar: true,
+              didOpen: (toast) => {
+                toast.onmouseenter = Swal.stopTimer;
+                toast.onmouseleave = Swal.resumeTimer;
+              },
+            });
+            Toast.fire({
+              icon: "success",
+              title: "Signed in successfully",
+            });
+
+            router.push({ path: "/Dashboard/Main" });
+          })
+          .catch((err) => {
             this.loading = false;
-          } else {
-            this.error = err.message.slice(9);
-            this.loading = false;
-          }
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        });
+            window.scrollTo({ top: 0, behavior: "smooth" });
+            if (
+              (err.message = "Firebase: Error (auth/email-already-in-use).")
+            ) {
+              this.error = "Email already associated with another account.";
+            } else {
+              this.error = err.message.slice(9);
+            }
+          });
+      } else {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        this.loading = false;
+        this.error =
+          "Password must be at least 6 characters, with 1 special character and 1 number.";
+      }
     },
     loginUser() {
+      const router = useRouter();
       const email = this.email;
       const password = this.password;
       this.loading = true;
@@ -123,27 +166,25 @@ export const useUserStore = defineStore("user", {
             icon: "success",
             title: "Welcome back!",
           });
-          this.loggedIn = true;
           this.email = "";
           this.password = "";
-          this.router.push({ path: "/Dashboard/Main" });
+          router.push({ path: "/Dashboard/Main" });
         })
         .catch((err) => {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+          this.loading = false;
           if (err.message == "Firebase: Error (auth/invalid-email).") {
             this.error = "Invalid email.";
-            this.loading = false;
           } else {
             this.error = err.message.slice(9);
-            this.loading = false;
           }
-          window.scrollTo({ top: 0, behavior: "smooth" });
         });
     },
     async logOut() {
-      console.log("logged out");
+      const router = useRouter();
       signOut(auth)
         .then(() => {
-          this.router.push({ path: "/Login" });
+          router.push({ path: "/Login" });
         })
         .catch((err) => {
           // console.log(err.message);
@@ -258,6 +299,29 @@ export const useUserStore = defineStore("user", {
             });
         }
       }
+    },
+    signInWithGoogle() {
+      signInWithPopup(auth, provider)
+        .then((result) => {
+          // This gives you a Google Access Token. You can use it to access the Google API.
+          const credential = GoogleAuthProvider.credentialFromResult(result);
+          const token = credential.accessToken;
+          // The signed-in user info.
+          const user = result.user;
+          console.log(user);
+          // IdP data available using getAdditionalUserInfo(result)
+          // ...
+        })
+        .catch((error) => {
+          // Handle Errors here.
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          // The email of the user's account used.
+          const email = error.customData.email;
+          // The AuthCredential type that was used.
+          const credential = GoogleAuthProvider.credentialFromError(error);
+          // ...
+        });
     },
   },
 });

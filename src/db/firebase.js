@@ -1,4 +1,4 @@
-import { initializeApp } from 'firebase/app'
+import { initializeApp } from "firebase/app";
 import {
   getFirestore,
   doc,
@@ -16,45 +16,55 @@ import {
   arrayUnion,
   arrayRemove,
   getAggregateFromServer,
-    orderBy,
+  orderBy,
   sum,
-  runTransaction
-} from 'firebase/firestore'
+  runTransaction,
+} from "firebase/firestore";
 import {
   getAuth,
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithPopup,
+  linkWithPopup,
   signInWithEmailAndPassword,
   signOut,
   deleteUser,
   reauthenticateWithCredential,
-  EmailAuthProvider
-} from 'firebase/auth'
-import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'
+  EmailAuthProvider,
+} from "firebase/auth";
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject,
+} from "firebase/storage";
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyCuTOcftYiZltE_N-XdRtxnxsarJFE6qcI',
-  authDomain: 'task-manager-hbb.firebaseapp.com',
-  projectId: 'task-manager-hbb',
-  storageBucket: 'task-manager-hbb.appspot.com',
-  messagingSenderId: '621704746156',
-  appId: '1:621704746156:web:49e659592ec5873bae3b09',
-  measurementId: 'G-D1MJCYKQ1D'
-}
+  apiKey: "AIzaSyCuTOcftYiZltE_N-XdRtxnxsarJFE6qcI",
+  authDomain: "task-manager-hbb.firebaseapp.com",
+  projectId: "task-manager-hbb",
+  storageBucket: "task-manager-hbb.appspot.com",
+  messagingSenderId: "621704746156",
+  appId: "1:621704746156:web:49e659592ec5873bae3b09",
+  measurementId: "G-D1MJCYKQ1D",
+};
 
-initializeApp(firebaseConfig)
+initializeApp(firebaseConfig);
 
-const db = getFirestore()
-const auth = getAuth()
-const storage = getStorage()
+const db = getFirestore();
+const auth = getAuth();
+const storage = getStorage();
+const provider = new GoogleAuthProvider();
 
 export {
   auth,
   db,
+  provider,
   onSnapshot,
   doc,
   setDoc,
+  linkWithPopup,
   updateDoc,
   storage,
   addDoc,
@@ -68,7 +78,7 @@ export {
   query,
   where,
   deleteUser,
-    orderBy,
+  orderBy,
   deleteDoc,
   collection,
   Timestamp,
@@ -82,5 +92,5 @@ export {
   reauthenticateWithCredential,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
-  signOut
-}
+  signOut,
+};
